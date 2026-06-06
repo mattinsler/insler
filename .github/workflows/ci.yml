@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: ${{ matrix.timeout }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - check: fmt-check
+            timeout: 5
+          - check: lint
+            timeout: 10
+          - check: test
+            timeout: 15
+          - check: typecheck
+            timeout: 10
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-workspace
+      - run: bun run ${{ matrix.check }}
+
+      # The `test` check additionally publishes test results and coverage as
+      # artifacts. `always()` ensures they upload even when tests fail — that's
+      # exactly when the JUnit report and partial coverage are most useful.
+      - name: Generate test results (JUnit)
+        if: ${{ always() && matrix.check == 'test' }}
+        continue-on-error: true
+        run: bun test --reporter=junit --reporter-outfile=junit.xml
+      - name: Generate coverage report
+        if: ${{ always() && matrix.check == 'test' }}
+        continue-on-error: true
+        run: bun run coverage-merge && bun run coverage-html
+      - name: Upload test results
+        if: ${{ always() && matrix.check == 'test' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: test-results
+          path: junit.xml
+          if-no-files-found: warn
+      - name: Upload test coverage
+        if: ${{ always() && matrix.check == 'test' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: test-coverage
+          path: coverage/
+          if-no-files-found: warn

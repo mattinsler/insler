@@ -1,0 +1,13 @@
+amends "package://github.com/jdx/hk/releases/download/v1.45.0/hk@1.45.0#/Config.pkl"
+
+hooks {
+  ["pre-commit"] {
+    steps {
+      ["fmt"] {
+        glob = List("*.ts", "*.tsx", "*.js", "*.jsx", "*.json", "*.css")
+        check = "mise run fmt-check"
+        fix = "mise run fmt"
+      }
+    }
+  }
+}

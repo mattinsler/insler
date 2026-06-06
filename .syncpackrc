@@ -1,0 +1,41 @@
+{
+  "$schema": "https://unpkg.com/syncpack@15.3.1/schema.json",
+  "sortAz": [
+    "bin",
+    "catalog",
+    "dependencies",
+    "devDependencies",
+    "optionalDependencies",
+    "peerDependencies",
+    "scripts",
+    "workspaces"
+  ],
+  "sortFirst": [
+    "name",
+    "description",
+    "version",
+    "private",
+    "license",
+    "type",
+    "sideEffects",
+    "engines",
+    "workspaces",
+    "catalog",
+    "bin",
+    "main",
+    "module",
+    "types",
+    "exports",
+    "imports",
+    "files",
+    "author",
+    "funding",
+    "repository",
+    "bugs",
+    "publishConfig",
+    "scripts",
+    "dependencies",
+    "devDependencies"
+  ],
+  "sortPackages": true
+}
