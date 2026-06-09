@@ -1,0 +1,20 @@
+{
+  "name": "file-service",
+  "description": "Example service demonstrating the @insler RPC framework over NATS with DI and msgpack serialization.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "bun --conditions=@insler/source run src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@insler/di": "workspace:*",
+    "@insler/rpc-client": "workspace:*",
+    "@insler/rpc-contract": "workspace:*",
+    "@insler/rpc-transport-nats": "workspace:*",
+    "@insler/serde-msgpack": "workspace:*",
+    "@insler/service": "workspace:*",
+    "@nats-io/transport-node": "catalog:",
+    "zod": "catalog:"
+  }
+}

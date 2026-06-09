@@ -24,6 +24,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - check: audit
+            timeout: 5
           - check: fmt-check
             timeout: 5
           - check: lint

@@ -1,0 +1,13 @@
+{
+  // Examples consume the published surface but never emit declarations, so the
+  // root's isolatedDeclarations requirement (which forces hand-written types on
+  // inferred exports like a Contract.create() result) is relaxed here.
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "isolatedDeclarations": false,
+    "declaration": false,
+    "noEmit": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
+}

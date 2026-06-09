@@ -10,6 +10,17 @@
     "scripts",
     "workspaces"
   ],
+  "sortExports": [
+    "@insler/source",
+    "types",
+    "node-addons",
+    "node",
+    "import",
+    "require",
+    "development",
+    "production",
+    "default"
+  ],
   "sortFirst": [
     "name",
     "description",

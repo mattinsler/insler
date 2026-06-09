@@ -5,10 +5,16 @@ on:
     branches: [main]
     paths:
       - .github/workflows/**
+      - package.json
+      - '**/package.json'
+      - bun.lock
   pull_request:
     branches: ['**']
     paths:
       - .github/workflows/**
+      - package.json
+      - '**/package.json'
+      - bun.lock
 
 concurrency:
   group: dependency-review-${{ github.ref }}
@@ -19,6 +25,12 @@ permissions:
 
 jobs:
   dependency-review:
+    # The dependency review API only exists on public repos (private needs an
+    # org + GitHub Code Security), so this job skips on the private dev and
+    # staging repos and runs on the public mirror — where each push is one
+    # snapshot commit on a linear history, making `event.before` a valid base
+    # ref. The zero-SHA check skips the first-ever push, which has no base.
+    if: ${{ !github.event.repository.private && github.event.before != '0000000000000000000000000000000000000000' }}
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -26,5 +38,7 @@ jobs:
           persist-credentials: false
       - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
         with:
+          base-ref: ${{ github.event.pull_request.base.sha || github.event.before }}
+          head-ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fail-on-severity: high
           comment-summary-in-pr: on-failure

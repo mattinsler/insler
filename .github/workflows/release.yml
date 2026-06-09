@@ -1,0 +1,94 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+permissions: {}
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
+jobs:
+  # Blocks the release until every other workflow triggered by this commit
+  # (CI, and Dependency Review / Workflow Lint when their path filters match)
+  # has completed successfully. Polling the runs API — rather than a
+  # `workflow_run` trigger — handles the path-filtered workflows, which only
+  # sometimes exist for a given push.
+  wait-for-workflows:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      actions: read
+    steps:
+      - name: Wait for other workflows on this commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          SELF: ${{ github.workflow }}
+        run: |
+          # Give workflows triggered by the same push a moment to register.
+          sleep 30
+
+          while true; do
+            runs=$(gh api "repos/${REPO}/actions/runs?head_sha=${SHA}&per_page=100" \
+              | jq --arg self "$SELF" '[.workflow_runs[] | select(.name != $self) | {name, status, conclusion}]')
+
+            echo "$runs" | jq -r '.[] | "\(.name): \(.status)\(if .conclusion then " (\(.conclusion))" else "" end)"'
+
+            pending=$(echo "$runs" | jq '[.[] | select(.status != "completed")] | length')
+            if [ "$pending" -gt 0 ]; then
+              echo "Waiting on $pending workflow run(s)..."
+              sleep 30
+              continue
+            fi
+
+            failed=$(echo "$runs" | jq '[.[] | select(.conclusion != "success" and .conclusion != "skipped")] | length')
+            if [ "$failed" -gt 0 ]; then
+              echo "Refusing to release; workflow run(s) did not succeed:"
+              echo "$runs" | jq -r '.[] | select(.conclusion != "success" and .conclusion != "skipped") | "  \(.name): \(.conclusion)"'
+              exit 1
+            fi
+
+            echo "All other workflows succeeded."
+            exit 0
+          done
+
+  release:
+    needs: wait-for-workflows
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    # Needed by changesets/action to open the "Version Packages" PR and push tags.
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup-workspace
+
+      # Authenticate bun publish against npm. bun reads _authToken from .npmrc.
+      - name: Configure npm auth
+        run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > "$HOME/.npmrc"
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # Opens/updates a release PR when changesets are pending; on merge of that
+      # PR (i.e. when no changesets remain) it runs `ci:publish` to build and
+      # publish each package with bun and push git tags.
+      - name: Create release PR or publish
+        uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1.9.0
+        with:
+          version: bun run ci:version
+          publish: bun run ci:publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
