@@ -59,7 +59,17 @@ jobs:
             exit 0
           done
 
+  # This workflow file exists in BOTH repos (the private repo and its public
+  # mirror snapshot), so each half of the release is gated by repository:
+  #   - insler-dev (private): changesets accumulate here; the action opens and
+  #     updates the "Version Packages" PR. Merging that PR bumps versions in
+  #     the source of truth. Nothing is ever published from the private repo.
+  #   - insler (public mirror): snapshots never contain pending changesets
+  #     (publish-mirror.sh strips them), so the action always takes the
+  #     publish path: ci:publish uploads any version not yet on the registry,
+  #     then tags. Tags and GitHub releases live on the public repo.
   release:
+    if: github.repository == 'mattinsler/insler-dev' || github.repository == 'mattinsler/insler'
     needs: wait-for-workflows
     runs-on: ubuntu-24.04
     timeout-minutes: 20
@@ -75,20 +85,25 @@ jobs:
 
       - uses: ./.github/actions/setup-workspace
 
-      # Authenticate bun publish against npm. bun reads _authToken from .npmrc.
-      - name: Configure npm auth
-        run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > "$HOME/.npmrc"
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      # Opens/updates a release PR when changesets are pending; on merge of that
-      # PR (i.e. when no changesets remain) it runs `ci:publish` to build and
-      # publish each package with bun and push git tags.
-      - name: Create release PR or publish
+      - name: Create or update Version Packages PR
+        if: github.repository == 'mattinsler/insler-dev'
         uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1.9.0
         with:
           version: bun run ci:version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # bun publish auth MUST come from NPM_CONFIG_TOKEN: bun ignores
+      # $HOME/.npmrc whenever $XDG_CONFIG_HOME is set, as it is on hosted
+      # runners (oven-sh/bun#23128), so a ~/.npmrc _authToken silently fails
+      # with "missing authentication". NPM_TOKEN is still passed for
+      # changesets/action's own ~/.npmrc setup (used by npm-cli tooling).
+      - name: Publish packages
+        if: github.repository == 'mattinsler/insler'
+        uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1.9.0
+        with:
           publish: bun run ci:publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -37,7 +37,7 @@
   "scripts": {
     "audit": "bun audit --audit-level=high",
     "build": "tsdown",
-    "ci:publish": "bun run build && for dir in packages/*; do (cd \"$dir\" && bun publish || true); done && changeset tag",
+    "ci:publish": "scripts/ci-publish.sh",
     "ci:version": "changeset version && bun update",
     "coverage-html": "lcov-viewer lcov --output ./coverage/html ./coverage/merged-lcov.info",
     "coverage-merge": "mkdir -p coverage && lcov-result-merger 'packages/*/coverage/lcov.info' ./coverage/merged-lcov.info --ignore='**/node_modules/**'",
