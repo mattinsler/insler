@@ -13,5 +13,23 @@
         "checkTypeImports": true
       }
     ]
-  }
+  },
+  "overrides": [
+    {
+      "files": ["packages/*/*-integration/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["../**"],
+                "message": "Integration packages consume their subsystem's public surface only (workspace packages); a parent-relative import escaping the package would reach into sibling package sources. Non-public package subpaths are guarded by the exports map at typecheck time."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
 }

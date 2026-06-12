@@ -1,0 +1,14 @@
+{
+  // The di docs site is a private Astro build (no declaration emit), so the
+  // root's isolatedDeclarations requirement is relaxed — the examples
+  // precedent. `astro sync` (run by the typecheck script) generates
+  // .astro/types.d.ts for the astro:* virtual modules.
+  "extends": "../../../tsconfig.json",
+  "compilerOptions": {
+    "isolatedDeclarations": false,
+    "declaration": false,
+    "noEmit": true
+  },
+  "include": ["src", "astro.config.ts", ".astro/types.d.ts"],
+  "exclude": ["node_modules", "dist"]
+}

@@ -1,0 +1,55 @@
+name: Service Integration
+
+# Path-filtered integration CI for the service subsystem (ADR-0003 move 3,
+# subsystem-branding issue 0009, replicating the rpc template and the di/serde
+# replications): provision the toolchain via the shared setup action, build
+# the published surface (the private integration package imports it exactly
+# as an external consumer would, so its imports resolve to built dist
+# output), then run the suite. service is an in-process policy layer over the
+# rpc core — the transport its public surface serves over is an injected
+# parameter, and the wire-level seam belongs to the rpc subsystem's own
+# integration suite — so unlike the rpc template no real infrastructure is
+# provisioned; the suite runs entirely in-process. Runs only when the service
+# subsystem directory (or this workflow) changes.
+#
+# The repo-wide Release workflow's wait-for-other-workflows gate polls runs by
+# head_sha, so on pushes that don't touch the subsystem this workflow simply
+# never appears — absent, not blocking.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - packages/service/**
+      - .github/workflows/service-integration.yml
+  pull_request:
+    paths:
+      - packages/service/**
+      - .github/workflows/service-integration.yml
+
+permissions: {}
+
+concurrency:
+  group: service-integration-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
+jobs:
+  integration:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-workspace
+
+      - name: Build the published surface
+        run: bun run build
+
+      - name: Run the service integration suite
+        run: bun run --filter '@insler/service-integration' test:integration

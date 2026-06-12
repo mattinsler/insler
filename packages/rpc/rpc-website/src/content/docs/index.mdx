@@ -1,0 +1,76 @@
+---
+title: '@insler/rpc'
+description: Contract-first RPC for TypeScript — typed contracts, clients, hosts, and pluggable transports.
+template: splash
+hero:
+  title: Contract-first RPC for TypeScript
+  tagline: Define a service's API once as a typed, versioned contract — derive a fully-typed client and a validating host from it, and swap the wire without touching either.
+  actions:
+    - text: Get started
+      link: /getting-started/
+      variant: primary
+    - text: Entrypoint reference
+      link: /reference/contract/
+      variant: minimal
+editUrl: false
+lastUpdated: false
+---
+
+## Zero to a working service
+
+One install yields a working in-process service — contract, client, host, and
+the in-memory transport ship together in the umbrella package:
+
+```sh
+bun add @insler/rpc
+```
+
+```ts
+import { Client, Contract, createMemoryTransport, Host } from '@insler/rpc';
+import { z } from 'zod';
+
+const Calculator = Contract.create('calculator', {
+  version: '1.0.0',
+  methods: {
+    add: {
+      input: z.object({ a: z.number(), b: z.number() }),
+      output: z.object({ result: z.number() }),
+    },
+  },
+});
+
+const handlers: Contract.Handlers<typeof Calculator> = {
+  add: async ({ a, b }) => ({ result: a + b }),
+};
+
+const { client: clientTransport, host: hostTransport } = createMemoryTransport();
+await Host.create(Calculator, handlers, hostTransport);
+const calculator = Client.create(Calculator, clientTransport);
+
+await calculator.add({ a: 3, b: 4 }); // { result: 7 }
+```
+
+Its runtime dependencies are exactly `zod` and the zero-dependency
+`@insler/serde` — nothing heavier. When you are ready for the network, add
+[`@insler/rpc-transport-nats`](/reference/rpc-transport-nats/): the same
+contract, handlers, and client move onto NATS unchanged.
+
+The [getting-started guide](/getting-started/) walks this example end to end.
+
+## One contract, both sides
+
+The **contract** is the single source of truth: methods, zod input/output
+schemas, per-request context, and typed errors, frozen and versioned. The
+**client** derives fully-typed calls from it; the **host** validates every
+request and response against it, extracts context, and normalizes errors. A
+pluggable **transport** carries the call — in-process for dev, tests, and
+monolith mode, or NATS for the network.
+
+## Import exactly the layer you need
+
+The root `@insler/rpc` entrypoint re-exports the 0-to-value surface shown
+above. Each layer is also its own subpath entrypoint — the canonical import
+path per symbol — and each is separately compiled, so importing one loads no
+code from the others. Anything that exists to bind a third-party system lives
+in its own adapter package instead. The [reference](/reference/contract/)
+documents every entrypoint and adapter, one page each.

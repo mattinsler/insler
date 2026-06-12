@@ -1,0 +1,29 @@
+{
+  "name": "@insler/service-integration",
+  "description": "Private cross-package integration suite for the service subsystem: exercises the published surface (the single-entrypoint @insler/service umbrella — the env-aware runtime wrapper and the defineService declaration model) exactly as an external consumer would, against built dist output. service is an in-process policy layer over the rpc core (the transport is an injected parameter), so the suite needs no real infrastructure. Run by the path-filtered Service Integration workflow; never published to npm.",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "author": {
+    "name": "Matt Insler",
+    "email": "matt.insler@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mattinsler/insler.git",
+    "directory": "packages/service/service-integration"
+  },
+  "scripts": {
+    "test:integration": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@insler/rpc": "workspace:*",
+    "@insler/service": "workspace:*",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "expect-type": "catalog:",
+    "typescript": "catalog:"
+  }
+}

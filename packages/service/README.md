@@ -1,168 +1,100 @@
-# @insler/service
+# service — Typed service definitions for the @insler RPC stack
 
-Environment-aware service and client wrappers for insler RPC with support for:
+Wrap an RPC contract and its handlers in a **service** that knows its
+environment — automatic dev-mode logging, handler-completeness validation,
+in-process test pairs — and declare what it needs to run with
+**`defineService`**: a typed, statically-analyzable record of the service's
+identity, dependencies, scale, and exposure that the platform compiles into
+deployment artifacts.
 
-- Automatic environment detection (development, test, production)
-- Development-mode logging and timing middleware
-- Handler validation in non-production environments
-- Service-level host and client creation
-- In-process test pairs with handler validation
+**Full documentation: [service.insler.dev](https://service.insler.dev)**
 
 ## Install
+
+One install yields both roles — the runtime wrapper and the declaration model ship together in
+the single-entrypoint package, and it brings the `@insler/rpc` core (contracts, clients, hosts,
+transports) along with it:
 
 ```sh
 bun add @insler/service
 ```
 
-## Creating a service host
+Its runtime dependencies are exactly `@insler/rpc` and `std-env` — nothing heavier.
 
-`Service.create()` wraps `Host.create()` with environment-aware defaults:
+## A minimal service
+
+Author the contract with the rpc core, then serve it env-aware:
 
 ```ts
+import { Contract } from '@insler/rpc/contract';
+import { createMemoryTransport } from '@insler/rpc/transport-memory';
 import { Service } from '@insler/service';
+import { z } from 'zod';
 
-const service = await Service.create(MyContract, {
-  async getModel(ctx, { modelId }) {
-    return await db.findModel(modelId);
+const GreeterContract = Contract.create('greeter', {
+  version: '1.0.0',
+  methods: {
+    greet: {
+      input: z.object({ name: z.string() }),
+      output: z.object({ message: z.string() }),
+    },
   },
-  async listModels(ctx) {
-    return { data: await db.listModels() };
-  },
-}, transport);
+});
 
-console.log(service.env); // 'development' | 'test' | 'production'
+const transport = createMemoryTransport();
+const service = await Service.create(GreeterContract, {
+  greet: async ({ name }) => ({ message: `Hello, ${name}!` }),
+}, transport.host);
 
+service.env; // 'development' | 'test' | 'production' — detected, or overridden via options
 await service.stop();
 ```
 
-In development mode, logging middleware is automatically applied. In non-production environments, handler completeness is validated at startup — missing handlers throw immediately.
+In development, logging middleware is applied automatically; outside production, a missing
+handler throws at startup instead of failing at call time. Swap the in-memory transport for a
+real one (e.g. the rpc subsystem's NATS transport) without touching the handlers.
 
-### Options
+Then declare how the service deploys — literal intent only, extractable without executing the
+service:
 
 ```ts
-const service = await Service.create(MyContract, handlers, transport, {
-  middleware: [myMiddleware],
-  env: 'production', // override auto-detection
+import { defineService } from '@insler/service';
+
+export const greeter = defineService({
+  name: 'greeter',
+  kind: 'ephemeral', // holds nothing between requests — may scale to zero
+  contract: GreeterContract,
+  needs: ['valkey'], // logical resources, never connection strings
+  scale: { on: 'queue-depth', min: 0, max: 20 },
 });
 ```
 
-## Creating a service client
+The result is a deeply-frozen `ServiceDef`: validation throws at declaration time, defaults
+resolve onto always-present `effective*` projections, and `toJSON()` yields the static view the
+platform's generator consumes.
 
-`ServiceClient.create()` wraps `Client.create()` with environment-aware middleware:
+## What's in this directory
 
-```ts
-import { ServiceClient } from '@insler/service/client';
+### The umbrella package — `@insler/service` ([`service/`](./service/README.md))
 
-const client = ServiceClient.create(MyContract, transport);
-```
+service is a single-entrypoint core: the root import is the whole public surface.
 
-In development mode, logging and timing middleware are automatically applied.
+| Entrypoint        | Purpose                                                                                                                              |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `@insler/service` | The env-aware runtime wrapper (`Service.create`: environment detection, dev logging, handler-completeness validation) and the deployment-intent declaration model (`defineService`, the `ephemeral`/`persistent`/`workflow` kind taxonomy, `deriveIdentity`, needs/calls/scale/isolation/expose) |
 
-### Result-mode errors
+### Adapter packages
 
-```ts
-const client = ServiceClient.create(MyContract, transport, { errors: 'result' });
+None — service has no adapter packages. It is policy over the rpc core, not a binding to a
+third-party system: the transports a service runs over are the
+[rpc subsystem](https://rpc.insler.dev)'s adapters (e.g. `@insler/rpc-transport-nats`), and the
+platform layers that consume a declaration live in `@insler/platform`.
 
-const result = await client.getModel({ userId: 'u1' }, { modelId: 'm1' });
-if (!result.ok) {
-  console.log(result.error._tag);
-}
-```
+## Where to go next
 
-### Scoped clients
-
-```ts
-const client = ServiceClient.create(MyContract, transport);
-const scoped = ServiceClient.withContext(client, { userId: 'u1' });
-
-const model = await scoped.getModel({ modelId: 'm1' });
-```
-
-## Service kind taxonomy
-
-Every service is classified on a single lifecycle axis — `ephemeral`, `persistent`, or `workflow`. The kind is the primary dimension that determines how a service is deployed and operated (replica floor, scale-to-zero, scaling signal).
-
-### The decision rule
-
-> **Does the service hold state or work _between_ requests?**
-
-- **No** → `ephemeral`. The service exists only while serving a request (request/response or a single long-lived stream) and may scale to zero when idle.
-- **Yes** → `persistent`. The service is always-on with a replica floor and is never torn down.
-
-Two rules sharpen the call:
-
-- **Streaming does NOT force `persistent`.** A server-stream is one long-lived request, which is valid for `ephemeral`. You are not pushed to `persistent` purely because you stream.
-- **Externalize state to stay `ephemeral`.** State held across requests must live in an external store (Valkey / NATS-KV / Postgres). Once it is externalized, the service holds nothing between requests and remains `ephemeral` — the more scalable pattern.
-
-`workflow` is a third kind for durable orchestration workers (Temporal-style task processing). It is first-class for ergonomics but **inherits `persistent`'s operational profile**: it compiles to a persistent poller with a task queue, keeps a replica floor `>= 1`, and never scales to zero. A `workflow` declaration requires a `taskQueue`.
-
-Transport is orthogonal to kind: an `ephemeral` service can still be `expose`d over HTTP. Choosing a transport never changes the kind.
-
-### Default operational profile per kind
-
-| Kind | Min replicas | Scale-to-zero | Default scaling signal |
-|------|--------------|---------------|------------------------|
-| `ephemeral` | 0 | yes | queue depth / consumer lag |
-| `persistent` | ≥ 1 | no | CPU / custom |
-| `workflow` | ≥ 1 | no | task-queue backlog |
-
-These defaults are exported as `serviceKindProfiles`:
-
-```ts
-import { serviceKindProfiles, validateServiceKind } from '@insler/service';
-
-serviceKindProfiles.ephemeral; // { minReplicas: 0, scaleToZero: true, scalingSignal: 'queue-depth' }
-
-// validateServiceKind returns a list of issues (empty == valid):
-validateServiceKind({ kind: 'persistent', scale: { min: 0 } });
-// -> ["persistent services require a minimum replica floor >= 1, got scale.min=0"]
-
-validateServiceKind({ kind: 'ephemeral', scale: { min: 2 } }); // -> []  (warm pool is fine)
-```
-
-A `workflow` declaration requires a `taskQueue` at the type level:
-
-```ts
-import type { KindDeclaration } from '@insler/service';
-
-const w: KindDeclaration = { kind: 'workflow', taskQueue: 'onboarding' }; // ok
-// const bad: KindDeclaration = { kind: 'workflow' }; // ✗ taskQueue is required
-```
-
-## Environment detection
-
-The environment is detected automatically from `NODE_ENV` and related variables via `std-env`:
-
-| Condition | Environment |
-|---|---|
-| `NODE_ENV=test` or test runner detected | `'test'` |
-| `NODE_ENV=production` | `'production'` |
-| `NODE_ENV=development` | `'development'` |
-| Fallback | `'production'` |
-
-Override with the `env` option on either `Service.create()` or `ServiceClient.create()`.
-
-## Testing
-
-The `@insler/service/test` entry point provides `ServiceTest` for in-process test pairs with handler validation:
-
-```ts
-import { ServiceTest } from '@insler/service/test';
-
-const { client, stop } = await ServiceTest.pair(MyContract, {
-  async getModel(ctx, { modelId }) {
-    return { id: modelId, name: 'GPT-4', provider: 'openai', createdAt: new Date() };
-  },
-  // ...other handlers
-});
-
-const model = await client.getModel({ userId: 'u1' }, { modelId: 'm1' });
-
-await stop();
-```
-
-`ServiceTest.pair()` validates that all contract methods have handlers before creating the pair. Use `ServiceTest.resultPair()` for result-mode error handling.
-
-## License
-
-MIT
+- [service.insler.dev](https://service.insler.dev) — getting started and the full docs for the
+  runtime wrapper, the kind taxonomy, and every declaration axis.
+- [`service/README.md`](./service/README.md) — the package's complete API walkthrough.
+- The contract, client, host, and transports underneath come from the
+  [rpc subsystem](https://rpc.insler.dev) (`@insler/rpc`); the layers that compile a
+  `ServiceDef` into running fleets are the platform subsystem (`@insler/platform`).

@@ -1,6 +1,6 @@
 import { container } from '@insler/di';
-import { Client } from '@insler/rpc-client';
 import { createNatsTransport } from '@insler/rpc-transport-nats';
+import { Client } from '@insler/rpc/client';
 import { msgpackSerde } from '@insler/serde-msgpack';
 import { Service } from '@insler/service';
 import { connect } from '@nats-io/transport-node';

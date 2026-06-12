@@ -1,0 +1,37 @@
+/**
+ * insler.dev family brand tokens — the single place the visual identity is
+ * defined. Loaded by every family site via `familyStarlightConfig()`; a brand
+ * change is an edit to this file, not N copies.
+ *
+ * Starlight derives its palette from the --sl-color-* custom properties; the
+ * --if-* properties are the family's own tokens, used by the shared
+ * header/footer/nav components.
+ */
+
+:root {
+  /* family tokens */
+  --if-font-brand:
+    ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+  --if-nav-gap: 1rem;
+  --if-family-strip-height: 2rem;
+
+  /* make room for the family strip the FamilyHeader override adds */
+  --sl-nav-height: 5.5rem;
+
+  /* Starlight palette, dark (default) — indigo accent */
+  --sl-color-accent-low: #1f2354;
+  --sl-color-accent: #5961ff;
+  --sl-color-accent-high: #c7caff;
+}
+
+:root[data-theme='light'] {
+  /* Starlight palette, light */
+  --sl-color-accent-low: #dcdeff;
+  --sl-color-accent: #3f48eb;
+  --sl-color-accent-high: #1d2182;
+}
+
+/* The site title carries the family wordmark styling. */
+.site-title {
+  font-family: var(--if-font-brand);
+}

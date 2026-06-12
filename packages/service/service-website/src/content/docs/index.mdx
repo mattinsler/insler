@@ -1,0 +1,84 @@
+---
+title: '@insler/service'
+description: Environment-aware services and deployment-intent declarations — env-aware serving over the rpc stack, and defineService, the typed declaration the platform compiles.
+template: splash
+hero:
+  title: Environment-aware services for TypeScript
+  tagline: Serve a contract with environment detection, dev-mode logging, and handler-completeness validation built in — then declare how it deploys with defineService, the typed, statically-analyzable deployment intent the insler platform compiles into artifacts.
+  actions:
+    - text: Get started
+      link: /getting-started/
+      variant: primary
+    - text: API reference
+      link: /reference/service/
+      variant: minimal
+editUrl: false
+lastUpdated: false
+---
+
+## Zero to a served contract
+
+One install yields both roles — the env-aware runtime wrapper and the
+declaration model ship together in the single-entrypoint package, and it
+brings the `@insler/rpc` core along with it:
+
+```sh
+bun add @insler/service
+```
+
+```ts
+import { Contract } from '@insler/rpc/contract';
+import { createMemoryTransport } from '@insler/rpc/transport-memory';
+import { Service } from '@insler/service';
+import { z } from 'zod';
+
+const GreeterContract = Contract.create('greeter', {
+  version: '1.0.0',
+  methods: {
+    greet: {
+      input: z.object({ name: z.string() }),
+      output: z.object({ message: z.string() }),
+    },
+  },
+});
+
+const transport = createMemoryTransport();
+const service = await Service.create(GreeterContract, {
+  greet: async ({ name }) => ({ message: `Hello, ${name}!` }),
+}, transport.host);
+
+service.env; // detected: 'development' | 'test' | 'production'
+await service.stop();
+```
+
+The [getting-started guide](/getting-started/) walks this example end to end
+— and on to declaring how the service deploys.
+
+## Environment-aware by default
+
+`Service.create` wraps the rpc host with policy, not mechanics: the
+environment is detected automatically (override it via `options.env`),
+development mode applies logging middleware, and outside production a
+missing handler **throws at startup** instead of failing at call time. The
+transport is yours to inject — develop in-memory, deploy on the
+[rpc subsystem](https://rpc.insler.dev)'s NATS transport, without touching a
+handler.
+
+## Deployment intent is a typed declaration
+
+`defineService(...)` wraps a contract with the service's full operational
+intent — lifecycle `kind` (`ephemeral` / `persistent` / `workflow`), logical
+`needs`, typed cross-service `calls` (a method typo is a compile error),
+`scale`, `isolation`, and edge `expose` routes. It validates at declaration
+time and returns a deeply-frozen `ServiceDef` that stays **statically
+analyzable**: the platform's generator extracts it without executing the
+service.
+
+## One declaration, every consumer
+
+The frozen def keeps the live contract for the runtime path and serializes
+to a JSON-safe view for the generator; defaults resolve onto always-present
+`effectiveScale` / `effectiveIsolation` / route projections, and
+`deriveIdentity` yields the stable `environment.namespace.name` identity
+that credentials, secret paths, and telemetry key on. The
+[reference](/reference/service/) documents the full surface.

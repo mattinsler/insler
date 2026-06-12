@@ -1,0 +1,170 @@
+name: Website
+
+# Path-filtered website CI for the apex insler.dev site (ADR-0003 move 3,
+# subsystem-branding issue 0001). The build is the test: any PR or main push
+# touching the site's own content must build cleanly. packages/website/**
+# covers exactly the apex site plus the shared theme it consumes (the theme
+# lives at packages/website/theme) — no unrelated packages. Deploys are split
+# into dedicated jobs so permissions stay least-privilege:
+#
+#   - preview: PR-scoped, runs in any repository, posts the deployment URL
+#     back to the PR as a sticky comment (hence pull-requests: write on that
+#     job only). Inert while the Cloudflare secrets are absent.
+#   - production: only ever deploys from the public mirror repo
+#     (mattinsler/insler) — never from the private dev repo — in addition to
+#     the push-to-main and Cloudflare-secrets gating.
+#
+# The repo-wide Release workflow's wait-for-other-workflows gate polls runs by
+# head_sha, so on pushes that don't touch the site this workflow simply never
+# appears — absent, not blocking.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - packages/website/**
+      - .github/workflows/website.yml
+  pull_request:
+    paths:
+      - packages/website/**
+      - .github/workflows/website.yml
+
+permissions: {}
+
+concurrency:
+  group: website-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup-workspace
+
+      - name: Build apex site
+        run: bun run --filter '@insler/website' build
+
+      - name: Upload site build
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: website-dist
+          path: packages/website/dist
+          if-no-files-found: error
+
+  # PR-scoped preview deploy. Runs in any repository (dev or mirror) and is
+  # inert (skipped deploy + comment) while the Cloudflare secrets are absent.
+  preview:
+    if: github.event_name == 'pull_request'
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      # Required by the sticky preview-URL comment below; scoped to this job
+      # only so the production job never holds a write token.
+      pull-requests: write
+    steps:
+      - name: Download site build
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: website-dist
+          path: packages/website/dist
+
+      # Cloudflare credentials arrive with subsystem-branding issue 0002;
+      # until then the deploy below is skipped and this workflow is
+      # build-only.
+      - name: Check Cloudflare credentials
+        id: cloudflare
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [[ -n "$CLOUDFLARE_API_TOKEN" && -n "$CLOUDFLARE_ACCOUNT_ID" ]]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Deploy preview (insler.dev)
+        id: deploy
+        if: steps.cloudflare.outputs.available == 'true'
+        uses: cloudflare/wrangler-action@9681c2997648301493e78cacbfb790a9f19c833f # v3.9.0
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy packages/website/dist --project-name=insler-dev --branch=pr-${{ github.event.number }}
+
+      # Sticky comment: one comment per workflow, found by its hidden marker
+      # and updated in place on subsequent pushes. The URL crosses into the
+      # script via env, never inline interpolation (template-injection safe).
+      - name: Comment preview URL on PR
+        if: steps.cloudflare.outputs.available == 'true' && steps.deploy.outputs.deployment-url != ''
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        env:
+          DEPLOYMENT_URL: ${{ steps.deploy.outputs.deployment-url }}
+        with:
+          script: |
+            const marker = '<!-- website-preview-url -->';
+            const body = `${marker}\n**Website preview:** ${process.env.DEPLOYMENT_URL}`;
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number,
+              per_page: 100,
+            });
+            const existing = comments.find((comment) => comment.body?.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            }
+
+  # Production only ever deploys from the public mirror repo
+  # (mattinsler/insler): this dev repo (mattinsler/insler-dev) builds and
+  # previews but never publishes insler.dev. Push-to-main and the
+  # Cloudflare-secrets guard still gate the deploy as before.
+  production:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'mattinsler/insler'
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions: {}
+    steps:
+      - name: Download site build
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: website-dist
+          path: packages/website/dist
+
+      # Cloudflare credentials arrive with subsystem-branding issue 0002;
+      # until then the deploy below is skipped and this workflow is
+      # build-only.
+      - name: Check Cloudflare credentials
+        id: cloudflare
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [[ -n "$CLOUDFLARE_API_TOKEN" && -n "$CLOUDFLARE_ACCOUNT_ID" ]]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Deploy production (insler.dev)
+        if: steps.cloudflare.outputs.available == 'true'
+        uses: cloudflare/wrangler-action@9681c2997648301493e78cacbfb790a9f19c833f # v3.9.0
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy packages/website/dist --project-name=insler-dev --branch=main

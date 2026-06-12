@@ -1,0 +1,32 @@
+{
+  "name": "@insler/rpc-integration",
+  "description": "Private cross-package integration suite for the rpc subsystem: exercises the published surface (@insler/rpc umbrella entrypoints + adapter packages) exactly as an external consumer would, over real infrastructure (nats-server from the mise toolchain). Run by the path-filtered RPC Integration workflow; never published to npm.",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "author": {
+    "name": "Matt Insler",
+    "email": "matt.insler@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mattinsler/insler.git",
+    "directory": "packages/rpc/rpc-integration"
+  },
+  "scripts": {
+    "test:integration": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@insler/rpc": "workspace:*",
+    "@insler/rpc-transport-nats": "workspace:*",
+    "@insler/serde-cbor": "workspace:*",
+    "@insler/serde-json": "workspace:*",
+    "@insler/serde-msgpack": "workspace:*",
+    "@nats-io/transport-node": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
+  }
+}

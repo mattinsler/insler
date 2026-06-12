@@ -1,0 +1,63 @@
+{
+  "name": "@insler/rpc-transport-nats",
+  "description": "NATS transport for @insler RPC — unary and streaming calls over core NATS with credit-based flow control, discoverable with the standard `nats micro` CLI, plus a leaf-node helper for local development.",
+  "version": "0.1.0",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "exports": {
+    ".": {
+      "@insler/source": "./src/index.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "author": {
+    "name": "Matt Insler",
+    "email": "matt.insler@gmail.com"
+  },
+  "funding": "https://github.com/sponsors/mattinsler",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mattinsler/insler.git",
+    "directory": "packages/rpc/rpc-transport-nats"
+  },
+  "bugs": {
+    "url": "https://github.com/mattinsler/insler/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "import": "./dist/index.mjs",
+        "require": "./dist/index.cjs"
+      },
+      "./package.json": "./package.json"
+    }
+  },
+  "scripts": {
+    "test": "bun --conditions=@insler/source test --coverage --coverage-reporter=text --coverage-reporter=lcov"
+  },
+  "dependencies": {
+    "@insler/rpc": "workspace:*",
+    "@insler/serde": "workspace:*",
+    "@insler/serde-json": "workspace:*",
+    "@nats-io/transport-node": "catalog:"
+  },
+  "devDependencies": {
+    "@insler/serde-cbor": "workspace:*",
+    "@types/node": "catalog:",
+    "expect-type": "catalog:",
+    "zod": "catalog:"
+  }
+}

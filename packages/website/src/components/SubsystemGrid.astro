@@ -1,0 +1,67 @@
+---
+// The homepage's subsystem directory: one card per subsystem, rendered from
+// the shared family data, each linking out to its <subsystem>.insler.dev
+// site. The apex hosts no per-subsystem docs — these links are the way in.
+import { family } from '@insler/theme';
+---
+
+<div class="subsystem-grid">
+  {
+    family.subsystems.map((subsystem) => (
+      <article class="subsystem-card">
+        <h3>
+          <a href={subsystem.url}>{subsystem.title}</a>
+        </h3>
+        <p>{subsystem.tagline}</p>
+        <p class="subsystem-link" aria-hidden="true">
+          {new URL(subsystem.url).hostname}
+        </p>
+      </article>
+    ))
+  }
+</div>
+
+<style>
+  .subsystem-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+    gap: 1rem;
+  }
+
+  .subsystem-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1.25rem;
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: 0.5rem;
+    background: var(--sl-color-black);
+  }
+
+  .subsystem-card h3 {
+    margin: 0;
+    font-family: var(--if-font-brand);
+    font-size: var(--sl-text-lg);
+  }
+
+  .subsystem-card h3 a {
+    color: var(--sl-color-white);
+    text-decoration: none;
+  }
+
+  .subsystem-card h3 a:hover {
+    color: var(--sl-color-accent-high);
+  }
+
+  .subsystem-card p {
+    margin: 0;
+    color: var(--sl-color-gray-2);
+  }
+
+  .subsystem-link {
+    margin-top: auto;
+    font-family: var(--if-font-brand);
+    font-size: var(--sl-text-xs);
+    color: var(--sl-color-accent-high);
+  }
+</style>

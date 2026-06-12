@@ -1,0 +1,19 @@
+{
+  // The integration suite consumes the subsystem's published surface and
+  // never emits declarations, so the root's isolatedDeclarations requirement
+  // (which would force hand-written types on inferred exports) is relaxed —
+  // the examples precedent. The inherited `@insler/source` custom condition
+  // keeps the repo-wide typecheck buildless; resolution still goes through
+  // the package's public `exports` map, so non-public subpaths fail typecheck
+  // exactly as they would for an external consumer (see src/boundary.test.ts).
+  // At RUNTIME the suite runs plain `bun test` (no source condition),
+  // resolving built dist output — run `bun run build` first.
+  "extends": "../../../tsconfig.json",
+  "compilerOptions": {
+    "isolatedDeclarations": false,
+    "declaration": false,
+    "noEmit": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
+}

@@ -1,0 +1,72 @@
+{
+  "name": "@insler/cli",
+  "description": "The insler CLI — scan service declarations, generate deployment artifacts, and plan/apply reconciliation: auto-converge in development, gated and audited in production.",
+  "version": "0.1.0",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
+  "bin": {
+    "insler": "./src/insler.ts"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "exports": {
+    ".": {
+      "@insler/source": "./src/index.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./insler": {
+      "@insler/source": "./src/insler.ts",
+      "import": "./dist/insler.mjs",
+      "require": "./dist/insler.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "author": {
+    "name": "Matt Insler",
+    "email": "matt.insler@gmail.com"
+  },
+  "funding": "https://github.com/sponsors/mattinsler",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mattinsler/insler.git",
+    "directory": "packages/platform/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/mattinsler/insler/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "import": "./dist/index.mjs",
+        "require": "./dist/index.cjs"
+      },
+      "./insler": {
+        "import": "./dist/insler.mjs",
+        "require": "./dist/insler.cjs"
+      },
+      "./package.json": "./package.json"
+    },
+    "bin": {
+      "insler": "./dist/insler.mjs"
+    }
+  },
+  "scripts": {
+    "test": "bun --conditions=@insler/source test --coverage --coverage-reporter=text --coverage-reporter=lcov"
+  },
+  "dependencies": {
+    "@insler/platform": "workspace:*"
+  },
+  "devDependencies": {
+    "expect-type": "catalog:"
+  }
+}

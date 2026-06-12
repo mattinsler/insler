@@ -1,0 +1,59 @@
+{
+  "name": "@insler/service",
+  "description": "Env-aware service layer over the @insler RPC client and host (environment detection, dev-mode logging, handler-completeness validation, in-process test pairs), plus defineService — the typed declaration of a service's deployment intent.",
+  "version": "0.1.0",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "exports": {
+    ".": {
+      "@insler/source": "./src/index.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "author": {
+    "name": "Matt Insler",
+    "email": "matt.insler@gmail.com"
+  },
+  "funding": "https://github.com/sponsors/mattinsler",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mattinsler/insler.git",
+    "directory": "packages/service/service"
+  },
+  "bugs": {
+    "url": "https://github.com/mattinsler/insler/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "import": "./dist/index.mjs",
+        "require": "./dist/index.cjs"
+      },
+      "./package.json": "./package.json"
+    }
+  },
+  "scripts": {
+    "test": "bun --conditions=@insler/source test --coverage --coverage-reporter=text --coverage-reporter=lcov"
+  },
+  "dependencies": {
+    "@insler/rpc": "workspace:*",
+    "std-env": "catalog:"
+  },
+  "devDependencies": {
+    "expect-type": "catalog:",
+    "zod": "catalog:"
+  }
+}

@@ -1,0 +1,21 @@
+---
+// Starlight `Header` override: the standard Starlight header with the family
+// nav strip above it, so every family site links back to the family.
+import StarlightHeader from '@astrojs/starlight/components/Header.astro';
+
+import FamilyNav from './FamilyNav.astro';
+---
+
+<div class="if-family-strip">
+  <FamilyNav />
+</div>
+<StarlightHeader />
+
+<style>
+  .if-family-strip {
+    display: flex;
+    align-items: center;
+    height: var(--if-family-strip-height);
+    border-bottom: 1px solid var(--sl-color-hairline-shade);
+  }
+</style>

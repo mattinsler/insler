@@ -1,10 +1,11 @@
 name: CI
 
+# push-only: a `pull_request` trigger would re-run everything a branch push
+# already ran (PR checks attach to the head SHA either way). The cost is that
+# PR runs test the branch head, not the merge ref — keep branches rebased.
+# Fork PRs would also get no CI, but this repo takes no fork contributions.
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
 
 permissions:
   contents: read

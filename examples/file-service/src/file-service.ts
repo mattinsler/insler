@@ -1,4 +1,4 @@
-import type { Contract } from '@insler/rpc-contract';
+import type { Contract } from '@insler/rpc/contract';
 
 import type { FileContent, FileInfo, FileServiceContract, Identity } from './contract.js';
 

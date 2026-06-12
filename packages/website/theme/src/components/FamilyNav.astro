@@ -1,0 +1,67 @@
+---
+// The family nav: insler.dev plus a link out to every subsystem site,
+// rendered from the shared family data. Used by the FamilyHeader strip and
+// the FamilyFooter on every family site.
+import { family } from '../family.js';
+
+interface Props {
+  /** id of the subsystem whose own site is rendering the nav, if any. */
+  current?: string | undefined;
+}
+
+const { current } = Astro.props;
+---
+
+<nav class="if-family-nav" aria-label={`${family.title} family`}>
+  <a class="if-family-apex" href={family.url}>{family.title}</a>
+  <ul>
+    {
+      family.subsystems.map((subsystem) => (
+        <li>
+          <a
+            href={subsystem.url}
+            title={subsystem.tagline}
+            aria-current={subsystem.id === current ? 'true' : undefined}
+          >
+            {subsystem.id}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
+<style>
+  .if-family-nav {
+    display: flex;
+    align-items: baseline;
+    gap: var(--if-nav-gap);
+    font-family: var(--if-font-brand);
+    font-size: var(--sl-text-xs);
+  }
+
+  .if-family-apex {
+    color: var(--sl-color-white);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--if-nav-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  ul a {
+    color: var(--sl-color-gray-3);
+    text-decoration: none;
+  }
+
+  ul a:hover,
+  ul a[aria-current='true'] {
+    color: var(--sl-color-accent-high);
+  }
+</style>

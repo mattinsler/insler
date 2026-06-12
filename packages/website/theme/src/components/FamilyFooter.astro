@@ -1,0 +1,31 @@
+---
+// Starlight `Footer` override: the standard Starlight footer plus the family
+// nav, so every page carries the path back to the family.
+import StarlightFooter from '@astrojs/starlight/components/Footer.astro';
+
+import { family } from '../family.js';
+import FamilyNav from './FamilyNav.astro';
+---
+
+<StarlightFooter />
+<footer class="if-family-footer">
+  <FamilyNav />
+  <p>Part of the {family.title} family.</p>
+</footer>
+
+<style>
+  .if-family-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--sl-color-hairline-shade);
+  }
+
+  p {
+    margin: 0;
+    color: var(--sl-color-gray-3);
+    font-size: var(--sl-text-xs);
+  }
+</style>

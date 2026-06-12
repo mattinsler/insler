@@ -1,0 +1,31 @@
+{
+  "name": "@insler/theme",
+  "description": "Shared insler.dev family identity — brand tokens, header/footer overrides, and the family nav — consumed by the apex site and every subsystem Starlight site. Private: never published.",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./tokens.css": "./src/tokens.css",
+    "./components/*": "./src/components/*",
+    "./package.json": "./package.json"
+  },
+  "author": {
+    "name": "Matt Insler",
+    "email": "matt.insler@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mattinsler/insler.git",
+    "directory": "packages/website/theme"
+  },
+  "scripts": {
+    "test": "bun test --coverage --coverage-reporter=text --coverage-reporter=lcov",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@astrojs/starlight": "catalog:",
+    "astro": "catalog:",
+    "expect-type": "catalog:"
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "name": "@insler/platform",
+  "description": "The insler platform in one package — fleet scanning and a desired-state model, a pluggable deployment-artifact generator, and a plan/diff reconciler, each importable as its own subpath entrypoint (/fleet, /generator, /reconciler).",
+  "version": "0.1.0",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "exports": {
+    ".": {
+      "@insler/source": "./src/index.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./fleet": {
+      "@insler/source": "./src/fleet/index.ts",
+      "import": "./dist/fleet/index.mjs",
+      "require": "./dist/fleet/index.cjs"
+    },
+    "./generator": {
+      "@insler/source": "./src/generator/index.ts",
+      "import": "./dist/generator/index.mjs",
+      "require": "./dist/generator/index.cjs"
+    },
+    "./reconciler": {
+      "@insler/source": "./src/reconciler/index.ts",
+      "import": "./dist/reconciler/index.mjs",
+      "require": "./dist/reconciler/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "author": {
+    "name": "Matt Insler",
+    "email": "matt.insler@gmail.com"
+  },
+  "funding": "https://github.com/sponsors/mattinsler",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mattinsler/insler.git",
+    "directory": "packages/platform/platform"
+  },
+  "bugs": {
+    "url": "https://github.com/mattinsler/insler/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "import": "./dist/index.mjs",
+        "require": "./dist/index.cjs"
+      },
+      "./fleet": {
+        "import": "./dist/fleet/index.mjs",
+        "require": "./dist/fleet/index.cjs"
+      },
+      "./generator": {
+        "import": "./dist/generator/index.mjs",
+        "require": "./dist/generator/index.cjs"
+      },
+      "./reconciler": {
+        "import": "./dist/reconciler/index.mjs",
+        "require": "./dist/reconciler/index.cjs"
+      },
+      "./package.json": "./package.json"
+    }
+  },
+  "scripts": {
+    "test": "bun --conditions=@insler/source test --coverage --coverage-reporter=text --coverage-reporter=lcov"
+  },
+  "dependencies": {
+    "@insler/rpc": "workspace:*",
+    "@insler/service": "workspace:*"
+  },
+  "devDependencies": {
+    "expect-type": "catalog:",
+    "zod": "catalog:"
+  }
+}

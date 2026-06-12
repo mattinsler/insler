@@ -1,4 +1,4 @@
-import { Contract } from '@insler/rpc-contract';
+import { Contract } from '@insler/rpc/contract';
 import { z } from 'zod';
 
 /**

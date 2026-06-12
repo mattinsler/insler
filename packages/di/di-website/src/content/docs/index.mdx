@@ -1,0 +1,79 @@
+---
+title: '@insler/di'
+description: A typed dependency-injection container with managed lifecycles — tokens, parallel resolution, reference-counted singletons, no decorators.
+template: splash
+hero:
+  title: Typed dependency injection for TypeScript
+  tagline: Declare your application's pieces as typed tokens, bind them with factories, and let the container resolve the graph — with cleanup wired in from the start. No decorators, no reflection.
+  actions:
+    - text: Get started
+      link: /getting-started/
+      variant: primary
+    - text: API reference
+      link: /reference/di/
+      variant: minimal
+editUrl: false
+lastUpdated: false
+---
+
+## Zero to a working container
+
+One install yields a working typed container — tokens, the `container()`
+builder, and the lifecycle primitives ship together in the single-entrypoint
+package:
+
+```sh
+bun add @insler/di
+```
+
+```ts
+import { container, managed, token } from '@insler/di';
+
+const Path = token<string>('path');
+const Log = token<{ write(line: string): void }>('log');
+
+const app = await container()
+  .provide(Path, () => '/tmp/app.log')
+  .provide(Log, [Path], (path) => {
+    const sink = Bun.file(path).writer();
+    return managed(
+      { write: (line: string) => void sink.write(`${line}\n`) },
+      async () => void (await sink.end())
+    );
+  })
+  .start();
+
+app.get(Log).write('hello'); // fully typed — no casts, no lookups by string
+await app.stop(); // cleanups run in reverse dependency order
+```
+
+Its runtime dependencies are exactly `debug` and `object-hash` — nothing
+heavier. di is standalone: no coupling to the RPC stack or any other
+subsystem.
+
+The [getting-started guide](/getting-started/) walks this example end to end.
+
+## Tokens are typed keys
+
+A **token** pairs a name with a type; the container resolves it to exactly
+that type at the point of use. `factoryToken` + `parameterizedToken` /
+`lazyToken` create whole families routed to one factory — parameters are
+hashed into each instance's name, and lazy tokens materialize on demand after
+start instead of eagerly during it. Independent bindings resolve in parallel.
+
+## Lifecycle is part of the graph
+
+Return `managed(value, cleanup)` from a factory and `stop()` runs cleanups in
+reverse dependency order — dependents shut down before their dependencies.
+Wrap a factory in `singleton()` to share one reference-counted instance
+across containers: it is cleaned up only when the last container holding it
+stops.
+
+## Compose, don't configure
+
+`.use()` applies packs; `module()` packages the pack + configure pattern into
+a callable, configurable definition unit; `inject()` returns a deps-bound
+callable you register with a bare `provide`. The dev/prod swap rides on
+first-registration-wins, and `.manifest()` prints the whole dependency graph
+before anything starts. The [reference](/reference/di/) documents the full
+surface.

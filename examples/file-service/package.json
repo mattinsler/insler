@@ -9,8 +9,7 @@
   },
   "dependencies": {
     "@insler/di": "workspace:*",
-    "@insler/rpc-client": "workspace:*",
-    "@insler/rpc-contract": "workspace:*",
+    "@insler/rpc": "workspace:*",
     "@insler/rpc-transport-nats": "workspace:*",
     "@insler/serde-msgpack": "workspace:*",
     "@insler/service": "workspace:*",

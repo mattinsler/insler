@@ -1,0 +1,13 @@
+{
+  // The theme is a private source-shipped package (no build, no declaration
+  // emit), so the root's isolatedDeclarations requirement is relaxed — the
+  // examples precedent.
+  "extends": "../../../tsconfig.json",
+  "compilerOptions": {
+    "isolatedDeclarations": false,
+    "declaration": false,
+    "noEmit": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
+}

@@ -1,5 +1,5 @@
 import { type Module, type Token, module, token } from '@insler/di';
-import type { Contract } from '@insler/rpc-contract';
+import type { Contract } from '@insler/rpc/contract';
 
 import type { FileServiceContract } from './contract.js';
 import { type FileStore, InMemoryFileStore, createFileService } from './file-service.js';

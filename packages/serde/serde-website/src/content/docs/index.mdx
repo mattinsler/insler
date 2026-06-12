@@ -1,0 +1,63 @@
+---
+title: '@insler/serde'
+description: Pluggable wire serialization for TypeScript — one tiny Serde interface and a family of format adapters (JSON, MessagePack, CBOR, Avro).
+template: splash
+hero:
+  title: Pluggable wire serialization for TypeScript
+  tagline: One tiny interface — encode a value to a wire format, decode it back — and a family of format adapters that implement it. Swap JSON for MessagePack, CBOR, or Avro with a one-argument change, never a call-site rewrite.
+  actions:
+    - text: Get started
+      link: /getting-started/
+      variant: primary
+    - text: API reference
+      link: /reference/serde/
+      variant: minimal
+editUrl: false
+lastUpdated: false
+---
+
+## Zero to a working round-trip
+
+One adapter install yields a working serde — the JSON adapter brings the
+interface package with it:
+
+```sh
+bun add @insler/serde-json
+```
+
+```ts
+import { jsonSerde } from '@insler/serde-json';
+
+const wire = jsonSerde.encode({ createdAt: new Date(), tags: new Set(['a', 'b']) });
+const value = jsonSerde.decode(wire);
+// { createdAt: Date, tags: Set(['a', 'b']) } — rich types survive (SuperJSON)
+```
+
+The [getting-started guide](/getting-started/) walks from this install to
+swapping in every binary format behind the same seam.
+
+## One interface, every format
+
+The zero-dependency core [`@insler/serde`](/reference/serde/) owns a single
+contract — `Serde<Wire>`, two methods, `Wire` as the only knob. Every format
+binding is its own adapter package implementing it:
+[JSON](/reference/serde-json/) (SuperJSON-backed — `Date`, `Map`, `Set`,
+`BigInt`, and `RegExp` survive), [MessagePack](/reference/serde-msgpack/),
+[CBOR](/reference/serde-cbor/), and [Avro](/reference/serde-avro/). The
+binary adapters are all `Serde<Uint8Array>`, so they are interchangeable
+wherever a binary wire is expected.
+
+## Built to sit under a transport
+
+Anything that moves values over a wire takes a `Serde` — the
+[rpc subsystem](https://rpc.insler.dev)'s transports accept one as their
+`serde` option. Develop on JSON, deploy on MessagePack or CBOR, without
+touching a call site. The core is the bottom of the stack: zero dependencies,
+nothing internal sits below it.
+
+## A contract you can rely on
+
+Every implementation honors the same conventions: `encode(undefined)`
+produces an empty wire, decoding an empty wire returns `undefined`, and what
+you decode is what you encoded. The [reference](/reference/serde/) documents
+the interface and each adapter's exact surface.

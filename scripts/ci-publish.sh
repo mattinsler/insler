@@ -14,12 +14,14 @@ set -euo pipefail
 
 cd "$(git rev-parse --show-toplevel)"
 
+# shellcheck source=scripts/lib/package-dirs.sh
+source "$(dirname "${BASH_SOURCE[0]}")/lib/package-dirs.sh"
+
 bun run build
 
 published=0
 skipped=0
-for dir in packages/*/; do
-  [[ -f "$dir/package.json" ]] || continue
+for dir in $(insler_package_dirs); do
   if grep -q '"private"[[:space:]]*:[[:space:]]*true' "$dir/package.json"; then
     echo "-- skipping private package: $dir"
     continue

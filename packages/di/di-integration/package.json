@@ -1,0 +1,27 @@
+{
+  "name": "@insler/di-integration",
+  "description": "Private cross-package integration suite for the di subsystem: exercises the published surface (@insler/di) exactly as an external consumer would, against built dist output. di is a standalone in-process dependency-injection container, so the suite needs no real infrastructure. Run by the path-filtered DI Integration workflow; never published to npm.",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "author": {
+    "name": "Matt Insler",
+    "email": "matt.insler@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mattinsler/insler.git",
+    "directory": "packages/di/di-integration"
+  },
+  "scripts": {
+    "test:integration": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@insler/di": "workspace:*"
+  },
+  "devDependencies": {
+    "expect-type": "catalog:",
+    "typescript": "catalog:"
+  }
+}

@@ -1,0 +1,140 @@
+{
+  "name": "@insler/rpc",
+  "description": "The @insler RPC framework in one package — typed contracts, client, host, per-request context, and the in-memory transport, each importable as its own subpath entrypoint (/contract, /context, /client, /host, /transport-memory).",
+  "version": "0.1.0",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=18"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "exports": {
+    ".": {
+      "@insler/source": "./src/index.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./client": {
+      "@insler/source": "./src/client/index.ts",
+      "import": "./dist/client/index.mjs",
+      "require": "./dist/client/index.cjs"
+    },
+    "./client/dev": {
+      "@insler/source": "./src/client/dev.ts",
+      "import": "./dist/client/dev.mjs",
+      "require": "./dist/client/dev.cjs"
+    },
+    "./client/test": {
+      "@insler/source": "./src/client/test.ts",
+      "import": "./dist/client/test.mjs",
+      "require": "./dist/client/test.cjs"
+    },
+    "./context": {
+      "@insler/source": "./src/context/index.ts",
+      "import": "./dist/context/index.mjs",
+      "require": "./dist/context/index.cjs"
+    },
+    "./contract": {
+      "@insler/source": "./src/contract/index.ts",
+      "import": "./dist/contract/index.mjs",
+      "require": "./dist/contract/index.cjs"
+    },
+    "./host": {
+      "@insler/source": "./src/host/index.ts",
+      "import": "./dist/host/index.mjs",
+      "require": "./dist/host/index.cjs"
+    },
+    "./host/dev": {
+      "@insler/source": "./src/host/dev.ts",
+      "import": "./dist/host/dev.mjs",
+      "require": "./dist/host/dev.cjs"
+    },
+    "./host/test": {
+      "@insler/source": "./src/host/test.ts",
+      "import": "./dist/host/test.mjs",
+      "require": "./dist/host/test.cjs"
+    },
+    "./transport-memory": {
+      "@insler/source": "./src/transport-memory/index.ts",
+      "import": "./dist/transport-memory/index.mjs",
+      "require": "./dist/transport-memory/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "author": {
+    "name": "Matt Insler",
+    "email": "matt.insler@gmail.com"
+  },
+  "funding": "https://github.com/sponsors/mattinsler",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mattinsler/insler.git",
+    "directory": "packages/rpc/rpc"
+  },
+  "bugs": {
+    "url": "https://github.com/mattinsler/insler/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "import": "./dist/index.mjs",
+        "require": "./dist/index.cjs"
+      },
+      "./client": {
+        "import": "./dist/client/index.mjs",
+        "require": "./dist/client/index.cjs"
+      },
+      "./client/dev": {
+        "import": "./dist/client/dev.mjs",
+        "require": "./dist/client/dev.cjs"
+      },
+      "./client/test": {
+        "import": "./dist/client/test.mjs",
+        "require": "./dist/client/test.cjs"
+      },
+      "./context": {
+        "import": "./dist/context/index.mjs",
+        "require": "./dist/context/index.cjs"
+      },
+      "./contract": {
+        "import": "./dist/contract/index.mjs",
+        "require": "./dist/contract/index.cjs"
+      },
+      "./host": {
+        "import": "./dist/host/index.mjs",
+        "require": "./dist/host/index.cjs"
+      },
+      "./host/dev": {
+        "import": "./dist/host/dev.mjs",
+        "require": "./dist/host/dev.cjs"
+      },
+      "./host/test": {
+        "import": "./dist/host/test.mjs",
+        "require": "./dist/host/test.cjs"
+      },
+      "./transport-memory": {
+        "import": "./dist/transport-memory/index.mjs",
+        "require": "./dist/transport-memory/index.cjs"
+      },
+      "./package.json": "./package.json"
+    }
+  },
+  "scripts": {
+    "test": "bun --conditions=@insler/source test --coverage --coverage-reporter=text --coverage-reporter=lcov"
+  },
+  "dependencies": {
+    "@insler/serde": "workspace:*",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "expect-type": "catalog:",
+    "type-fest": "catalog:"
+  }
+}

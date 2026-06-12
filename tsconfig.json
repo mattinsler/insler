@@ -32,8 +32,11 @@
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false
   },
-  // Examples are private demos that never emit declarations, so the
-  // isolatedDeclarations requirement doesn't apply. Each example is typechecked
-  // by its own tsconfig (with that flag relaxed) via its `typecheck` script.
-  "exclude": ["examples"]
+  // Examples, the website packages (apex site + shared theme + the
+  // per-subsystem packages/<subsystem>/<subsystem>-website sites), and the
+  // per-subsystem integration packages (packages/<subsystem>/<subsystem>-integration)
+  // are private and never emit declarations, so the isolatedDeclarations
+  // requirement doesn't apply. Each is typechecked by its own tsconfig (with
+  // that flag relaxed) via its `typecheck` script.
+  "exclude": ["examples", "packages/website", "packages/*/*-integration", "packages/*/*-website"]
 }
