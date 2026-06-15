@@ -1,6 +1,6 @@
 {
   "name": "@insler/website",
-  "description": "The insler.dev family homepage (apex site): describes each subsystem and links out to its <subsystem>.insler.dev site. Private: deployed to Cloudflare, never published to npm.",
+  "description": "The insler.dev project homepage (apex site): describes each subsystem and links out to its <subsystem>.insler.dev site. Private: deployed to Cloudflare, never published to npm.",
   "private": true,
   "license": "MIT",
   "type": "module",
@@ -20,7 +20,6 @@
     "typecheck": "astro check"
   },
   "dependencies": {
-    "@astrojs/starlight": "catalog:",
     "@insler/theme": "workspace:*",
     "astro": "catalog:"
   },

@@ -1,0 +1,39 @@
+import starlight from '@astrojs/starlight';
+import { project, projectStarlightConfig } from '@insler/theme';
+import { defineConfig } from 'astro/config';
+
+// The platform subsystem docs site at platform.insler.dev (ADR-0003 move 3,
+// subsystem-branding issue 0010, replicating the rpc template and the
+// di/serde/service replications). The site's identity — URL, title, tagline —
+// derives from the shared project data and the look comes from @insler/theme,
+// so this config is the rpc template with a one-line id change; everything
+// platform-specific lives in the content.
+const SUBSYSTEM_ID = 'platform';
+const subsystem = project.subsystems.find((s) => s.id === SUBSYSTEM_ID);
+if (!subsystem) throw new Error(`${SUBSYSTEM_ID} is missing from the project identity`);
+
+const theme = projectStarlightConfig({ hue: subsystem.hue });
+
+export default defineConfig({
+  site: subsystem.url,
+  integrations: [
+    starlight({
+      title: subsystem.title,
+      description: subsystem.tagline,
+      customCss: [...theme.customCss],
+      components: { ...theme.components },
+      head: [...theme.head],
+      // The design system's Cobalt code theme (dark in both site themes).
+      expressiveCode: {
+        themes: [...theme.expressiveCode.themes],
+        styleOverrides: { ...theme.expressiveCode.styleOverrides },
+      },
+      // Starlight's built-in Pagefind full-text search stays enabled (unlike
+      // the apex, which is a single homepage with nothing to search).
+      sidebar: [
+        { label: 'Getting started', slug: 'getting-started' },
+        { label: 'Reference', items: [{ autogenerate: { directory: 'reference' } }] },
+      ],
+    }),
+  ],
+});

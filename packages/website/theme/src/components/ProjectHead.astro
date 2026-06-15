@@ -1,0 +1,29 @@
+---
+// Starlight `Head` override: load the project's brand typefaces — Space Grotesk
+// (display/wordmark), Instrument Sans (body), and Geist Mono (code) — the same
+// faces the insler.dev design system is drawn in. Preconnected so the brand
+// type paints without a flash; the faces are wired to Starlight's font vars in
+// tokens.css.
+import StarlightHead from '@astrojs/starlight/components/Head.astro';
+---
+
+{/* The design system is dark-first ("Afterdark"): default to the dark theme
+    when the visitor has no stored preference yet, so the site opens on the
+    brand canvas rather than following the OS. Runs before Starlight's own theme
+    script (inside StarlightHead) so Starlight then reads this seeded choice; the
+    theme toggle still overwrites it. */}
+<script is:inline>
+  try {
+    if (!localStorage.getItem('starlight-theme')) {
+      localStorage.setItem('starlight-theme', 'dark');
+      document.documentElement.dataset.theme = 'dark';
+    }
+  } catch (e) {}
+</script>
+<StarlightHead />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Instrument+Sans:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap"
+  rel="stylesheet"
+/>

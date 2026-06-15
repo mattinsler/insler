@@ -1,0 +1,31 @@
+{
+  "name": "@insler/platform-website",
+  "description": "The platform.insler.dev docs site: an independent Astro/Starlight site for the platform subsystem, carrying the shared @insler/theme project identity. Private: deployed to Cloudflare, never published to npm.",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "author": {
+    "name": "Matt Insler",
+    "email": "matt.insler@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mattinsler/insler.git",
+    "directory": "packages/platform/platform-website"
+  },
+  "scripts": {
+    "build": "astro build",
+    "dev": "astro dev",
+    "preview": "astro preview",
+    "typecheck": "astro check"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "catalog:",
+    "@insler/theme": "workspace:*",
+    "astro": "catalog:"
+  },
+  "devDependencies": {
+    "@astrojs/check": "catalog:",
+    "typescript": "catalog:"
+  }
+}

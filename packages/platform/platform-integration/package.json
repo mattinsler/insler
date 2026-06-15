@@ -1,0 +1,31 @@
+{
+  "name": "@insler/platform-integration",
+  "description": "Private cross-package integration suite for the platform subsystem: exercises the published surface (the three-entrypoint @insler/platform umbrella — fleet scanning, artifact generation, plan/diff reconciliation — plus the @insler/cli sibling's programmatic command API) exactly as an external consumer would, against built dist output. platform is the deployment-intent compiler — static analysis of defineService declarations, pure deterministic codegen, and an in-process plan/diff engine behind the StateProvider seam — so the suite needs no real infrastructure; its only real inputs are declaration fixture files inside the package. Run by the path-filtered Platform Integration workflow; never published to npm.",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "author": {
+    "name": "Matt Insler",
+    "email": "matt.insler@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mattinsler/insler.git",
+    "directory": "packages/platform/platform-integration"
+  },
+  "scripts": {
+    "test:integration": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@insler/cli": "workspace:*",
+    "@insler/platform": "workspace:*",
+    "@insler/rpc": "workspace:*",
+    "@insler/service": "workspace:*",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "expect-type": "catalog:",
+    "typescript": "catalog:"
+  }
+}

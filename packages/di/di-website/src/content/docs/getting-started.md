@@ -125,6 +125,6 @@ console.log(manifest.unresolved); // deps with no binding — catch them in a te
   all in the [reference](/reference/di/).
 - **Order without values.** `.defer()` for async registration, `.init()` for
   post-start setup, `.link()` for ordering-only dependencies.
-- **Meet the family.** di is standalone, but it composes the rest of
+- **Meet the projects.** di is standalone, but it composes the rest of
   [insler.dev](https://insler.dev) cleanly — transports, hosts, and clients
   make natural tokens in *your* application.

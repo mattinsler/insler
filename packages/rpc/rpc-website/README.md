@@ -2,11 +2,11 @@
 
 The rpc subsystem's docs site (ADR-0003 move 3): an independent
 Astro/Starlight site carrying the shared identity from
-[`@insler/theme`](../../website/theme/README.md) — family nav back to
+[`@insler/theme`](../../website/theme/README.md) — project nav back to
 [insler.dev](https://insler.dev) — with Starlight's built-in Pagefind
 full-text search. The first subsystem site, and the template the remaining
 subsystems (issues 0007–0010) replicate: the site identity (URL, title,
-tagline) derives from the theme's family data, and the reference section
+tagline) derives from the theme's project data, and the reference section
 carries one page per umbrella entrypoint and per adapter package
 (`scripts/rpc-website-package.test.ts` derives that requirement from the
 umbrella manifest, so it cannot drift).

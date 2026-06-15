@@ -9,12 +9,12 @@ import { discoverWorkspacePackages } from './workspace-packages.ts';
 // issue 0008, replicating the issue 0004 template and the di replication): a
 // private website package under the serde subsystem directory builds an
 // independent Astro/Starlight site at serde.insler.dev, consuming the shared
-// family identity from @insler/theme (nav path back to the family homepage),
+// project identity from @insler/theme (nav path back to the project homepage),
 // with Starlight's built-in full-text search enabled and a content scaffold
 // seeded from the agent library guides — a landing page opening with the
 // 0-to-value story, a getting-started guide, and one reference page per
 // umbrella entrypoint and per adapter package. The invariants derive from
-// the umbrella manifest and the shared family data, exactly as the rpc
+// the umbrella manifest and the shared project data, exactly as the rpc
 // template's do.
 
 const repoRoot = new URL('..', import.meta.url).pathname;
@@ -92,20 +92,20 @@ describe('typescript config (examples precedent)', () => {
   });
 });
 
-describe('shared family identity', () => {
+describe('shared project identity', () => {
   test('consumes the shared theme package', () => {
     expect(pkg.dependencies['@insler/theme']).toBe('workspace:*');
   });
 
-  test('applies the family identity from the theme, not a local copy', () => {
+  test('applies the project identity from the theme, not a local copy', () => {
     expect(astroConfig).toContain("from '@insler/theme'");
-    expect(astroConfig).toContain('familyStarlightConfig');
+    expect(astroConfig).toContain('projectStarlightConfig');
   });
 
-  test('site identity (URL, title, tagline) derives from the shared family data', () => {
+  test('site identity (URL, title, tagline) derives from the shared project data', () => {
     // Data-driven, exactly like the rpc template — the site never hardcodes
     // its own URL or pitch.
-    expect(astroConfig).toContain('family.subsystems');
+    expect(astroConfig).toContain('project.subsystems');
     expect(astroConfig).toContain("'serde'");
     expect(astroConfig).not.toContain('https://serde.insler.dev');
   });

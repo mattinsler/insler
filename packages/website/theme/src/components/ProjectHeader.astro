@@ -1,0 +1,21 @@
+---
+// Starlight `Header` override: the standard Starlight header with the project
+// nav strip above it, so every project site links back to the project.
+import StarlightHeader from '@astrojs/starlight/components/Header.astro';
+
+import ProjectNav from './ProjectNav.astro';
+---
+
+<div class="if-project-strip">
+  <ProjectNav />
+</div>
+<StarlightHeader />
+
+<style>
+  .if-project-strip {
+    display: flex;
+    align-items: center;
+    height: var(--if-project-strip-height);
+    border-bottom: 1px solid var(--sl-color-hairline-shade);
+  }
+</style>

@@ -1,6 +1,6 @@
 {
   "name": "@insler/rpc-website",
-  "description": "The rpc.insler.dev docs site: an independent Astro/Starlight site for the rpc subsystem, carrying the shared @insler/theme family identity. Private: deployed to Cloudflare, never published to npm.",
+  "description": "The rpc.insler.dev docs site: an independent Astro/Starlight site for the rpc subsystem, carrying the shared @insler/theme project identity. Private: deployed to Cloudflare, never published to npm.",
   "private": true,
   "license": "MIT",
   "type": "module",

@@ -1,6 +1,6 @@
 {
   "name": "@insler/theme",
-  "description": "Shared insler.dev family identity — brand tokens, header/footer overrides, and the family nav — consumed by the apex site and every subsystem Starlight site. Private: never published.",
+  "description": "Shared insler.dev project identity — brand tokens, header/footer overrides, and the project nav — consumed by the apex site and every subsystem Starlight site. Private: never published.",
   "private": true,
   "license": "MIT",
   "type": "module",

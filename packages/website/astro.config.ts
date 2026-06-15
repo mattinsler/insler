@@ -1,22 +1,14 @@
-import starlight from '@astrojs/starlight';
-import { family, familyStarlightConfig } from '@insler/theme';
+import { project } from '@insler/theme';
 import { defineConfig } from 'astro/config';
 
-// The apex insler.dev site: the family homepage. It carries the shared
-// identity from @insler/theme and hosts no per-subsystem docs — those live at
-// each <subsystem>.insler.dev site (ADR-0003 move 3).
-const theme = familyStarlightConfig();
-
+// The apex insler.dev site: the project homepage. It is a single bespoke
+// landing page (not a docs site), so it runs as plain Astro rather than
+// Starlight — the per-subsystem docs sites at <subsystem>.insler.dev are the
+// Starlight ones. The apex still wears the shared identity: it loads the brand
+// tokens from @insler/theme (`tokens.css`, the single source of the palette)
+// and renders its subsystem directory from the same `project` data the
+// subsystem sites' project nav uses. The homepage carries the project root
+// accent hue.
 export default defineConfig({
-  site: family.url,
-  integrations: [
-    starlight({
-      title: family.title,
-      description: family.tagline,
-      customCss: [...theme.customCss],
-      components: { ...theme.components },
-      // The apex is a single homepage; there are no docs to search.
-      pagefind: false,
-    }),
-  ],
+  site: project.url,
 });

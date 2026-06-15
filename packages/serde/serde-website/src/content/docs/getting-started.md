@@ -126,4 +126,4 @@ const plainJson: Serde<string> = {
   and [Avro](/reference/serde-avro/) — one page per package.
 - **Put it on a wire.** The [rpc subsystem](https://rpc.insler.dev) takes any
   of these as a transport's `serde` option — and the rest of the
-  [insler.dev](https://insler.dev) family composes the same way.
+  [insler.dev](https://insler.dev) projects compose the same way.

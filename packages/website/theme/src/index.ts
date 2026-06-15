@@ -1,2 +1,2 @@
-export { family, type FamilyBrand, type SubsystemBrand } from './family.js';
-export { familyStarlightConfig, type FamilyStarlightTheme } from './starlight.js';
+export { project, type ProjectBrand, type SubsystemBrand } from './project.js';
+export { projectStarlightConfig, type ProjectStarlightTheme } from './starlight.js';

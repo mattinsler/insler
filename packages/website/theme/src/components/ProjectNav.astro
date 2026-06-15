@@ -1,8 +1,8 @@
 ---
-// The family nav: insler.dev plus a link out to every subsystem site,
-// rendered from the shared family data. Used by the FamilyHeader strip and
-// the FamilyFooter on every family site.
-import { family } from '../family.js';
+// The project nav: insler.dev plus a link out to every subsystem site,
+// rendered from the shared project data. Used by the ProjectHeader strip and
+// the ProjectFooter on every project site.
+import { project } from '../project.js';
 
 interface Props {
   /** id of the subsystem whose own site is rendering the nav, if any. */
@@ -12,11 +12,11 @@ interface Props {
 const { current } = Astro.props;
 ---
 
-<nav class="if-family-nav" aria-label={`${family.title} family`}>
-  <a class="if-family-apex" href={family.url}>{family.title}</a>
+<nav class="if-project-nav" aria-label={`${project.title} projects`}>
+  <a class="if-project-apex" href={project.url}>{project.title}</a>
   <ul>
     {
-      family.subsystems.map((subsystem) => (
+      project.subsystems.map((subsystem) => (
         <li>
           <a
             href={subsystem.url}
@@ -32,7 +32,7 @@ const { current } = Astro.props;
 </nav>
 
 <style>
-  .if-family-nav {
+  .if-project-nav {
     display: flex;
     align-items: baseline;
     gap: var(--if-nav-gap);
@@ -40,7 +40,7 @@ const { current } = Astro.props;
     font-size: var(--sl-text-xs);
   }
 
-  .if-family-apex {
+  .if-project-apex {
     color: var(--sl-color-white);
     font-weight: 600;
     text-decoration: none;

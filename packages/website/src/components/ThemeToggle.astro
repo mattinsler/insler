@@ -1,0 +1,41 @@
+---
+// A text toggle ([ LIGHT ] / [ DARK ]) that flips data-theme on <html> and
+// persists the choice to localStorage. The pre-paint script in Base.astro
+// restores it. Surfaces follow the theme via the shared --if-* tokens.
+---
+
+<button
+  class="link theme-toggle-text cap"
+  type="button"
+  aria-label="Toggle color theme"
+  style="color:var(--if-sub);background:none;border:none;padding:0;"
+>
+  <span data-when="dark">[ LIGHT ]</span>
+  <span data-when="light">[ DARK ]</span>
+</button>
+
+<style>
+  .theme-toggle-text [data-when='light'] {
+    display: none;
+  }
+  :global([data-theme='light']) .theme-toggle-text [data-when='dark'] {
+    display: none;
+  }
+  :global([data-theme='light']) .theme-toggle-text [data-when='light'] {
+    display: inline;
+  }
+</style>
+
+<script>
+  function toggle() {
+    const cur = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+    const next = cur === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next);
+    try {
+      localStorage.setItem('insler-theme', next);
+    } catch (e) {}
+  }
+  document.querySelectorAll('.theme-toggle-text').forEach((el) => {
+    el.addEventListener('click', toggle);
+  });
+</script>

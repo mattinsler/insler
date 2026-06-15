@@ -1,0 +1,438 @@
+---
+import { project } from '@insler/theme';
+
+import Base from '../layouts/Base.astro';
+import Logo from '../components/Logo.astro';
+import ThemeToggle from '../components/ThemeToggle.astro';
+
+// The homepage directory and nav render from the shared `project` data — the
+// same single source the subsystem sites' project nav uses — so adding or
+// re-pitching a subsystem is one edit in @insler/theme, not here.
+const subsystems = project.subsystems;
+
+const NUMBER_WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight'];
+const countWord = (NUMBER_WORDS[subsystems.length] ?? `${subsystems.length}`).toUpperCase();
+
+// The working principles behind the @insler family — editorial copy that lives
+// with the homepage, not the brand data.
+const PRINCIPLES = [
+  {
+    n: '01',
+    title: 'One job each',
+    desc: 'Every package owns a single concern. When a feature wants a second concern, it becomes a second package.',
+  },
+  {
+    n: '02',
+    title: 'Types end to end',
+    desc: 'Contracts are TypeScript types, not strings or side-car schemas. If it compiles, it wires.',
+  },
+  {
+    n: '03',
+    title: 'Composable by contract',
+    desc: 'Packages connect through small interfaces. Use one alone, or snap the family together.',
+  },
+];
+---
+
+<Base title="insler.dev — TypeScript infrastructure">
+  <div class="hub fade-in">
+    <div class="hero-glow" aria-hidden="true"></div>
+
+    {/* masthead */}
+    <header class="wrap masthead">
+      <div class="mast-row">
+        <Logo domain={true} />
+        <nav class="mast-nav cap">
+          <a class="link" href="#index">INDEX</a>
+          <a class="link" href="#principles">PRINCIPLES</a>
+          <a class="link" href="https://github.com/mattinsler/insler" target="_blank" rel="noopener">
+            GITHUB ↗
+          </a>
+          <ThemeToggle />
+        </nav>
+      </div>
+      <div class="rule-strong"></div>
+      <div class="rule-thin"></div>
+    </header>
+
+    {/* hero */}
+    <section class="wrap hero">
+      <div class="cap hero-label">
+        TYPESCRIPT INFRASTRUCTURE — AN INDEX OF {countWord} LIBRARIES
+      </div>
+      <h1>
+        Small libraries.<br />Sharp contracts.
+        <span class="accent">No magic.</span>
+      </h1>
+      <p>
+        Every package in the <span class="mono pkg">@insler</span> namespace owns exactly one concern,
+        documents it completely, and composes with its siblings by contract.
+      </p>
+    </section>
+
+    {/* directory */}
+    <section id="index" class="wrap directory">
+      <div class="dir-head cap">
+        <span>NO.</span><span>PROJECT</span><span>PACKAGE</span><span>DESCRIPTION</span>
+        <span>VERSION</span><span style="text-align:right;">LINK</span>
+      </div>
+      {
+        subsystems.map((s, i) => {
+          const live = s.status === 'live';
+          const Row = live ? 'a' : 'div';
+          return (
+            <Row
+              href={live ? s.url : undefined}
+              class={`dir-row ${live ? 'is-live' : 'is-soon'}`}
+              data-id={s.id}
+              style={`--hue:${s.hue};${i === 0 ? 'border-top-color:var(--if-line-strong);' : ''}`}
+            >
+              <span class="mono no">{String(i + 1).padStart(2, '0')}</span>
+              <span class="proj">
+                <span class="dot proj-dot" style="width:9px;height:9px;" />
+                <span class="proj-name">{s.id}</span>
+              </span>
+              <span class="mono pkg-cell">{s.package}</span>
+              <span class="desc">{s.tagline}</span>
+              <span class="mono ver">{live ? s.version : '—'}</span>
+              <span class="mono link-cell">
+                {live ? (
+                  <span>
+                    DOCS <span class="arrow">→</span>
+                  </span>
+                ) : (
+                  <span>
+                    <span class="soon-default">[ SOON ]</span>
+                    <span class="soon-flash">IN DESIGN</span>
+                  </span>
+                )}
+              </span>
+            </Row>
+          );
+        })
+      }
+      <div class="rule-strong"></div>
+    </section>
+
+    {/* principles */}
+    <section id="principles" class="wrap principles">
+      <div class="cap" style="margin-bottom:26px;">WORKING PRINCIPLES</div>
+      <div class="phil-grid">
+        {
+          PRINCIPLES.map((f) => (
+            <div class="phil-card">
+              <div class="phil-title">
+                <span class="mono phil-n">{f.n}</span>
+                {f.title}
+              </div>
+              <p class="phil-desc">{f.desc}</p>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    {/* footer */}
+    <footer class="wrap foot">
+      <div class="rule-thin"></div>
+      <div class="rule-strong" style="margin-bottom:16px;"></div>
+      <div class="foot-row cap">
+        <span>INSLER.DEV — MIT LICENSED</span>
+        <span>GITHUB · NPM · RSS</span>
+      </div>
+    </footer>
+  </div>
+</Base>
+
+<style>
+  /* The apex landing wears the project root accent hue (the brand blue). The
+     accent law — frozen OKLCH lightness/chroma, hue rotated per subsystem — is
+     applied as page-local aliases over an inherited `--hue`, so the masthead and
+     hero take the brand hue and each directory row takes its subsystem's hue.
+     This mirrors how the shared theme derives `--if-accent-*`; the neutral
+     surfaces, text, and hairlines come straight from the theme's `--if-*`. */
+  .hub {
+    --hue: 250;
+    --acc: oklch(0.76 0.13 var(--hue));
+    --acc-text: oklch(0.76 0.13 var(--hue));
+    --glow-dot: 0 0 10px oklch(0.72 0.15 var(--hue) / 0.6);
+    --glow-hero: 0 0 28px oklch(0.72 0.15 var(--hue) / 0.5);
+    --wash: oklch(0.72 0.15 var(--hue) / 0.12);
+
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  :global([data-theme='light']) .hub {
+    --acc: oklch(0.58 0.14 var(--hue));
+    --acc-text: oklch(0.45 0.12 var(--hue));
+    --glow-dot: none;
+    --glow-hero: none;
+    --wash: oklch(0.55 0.13 var(--hue) / 0.1);
+  }
+
+  .hero-glow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 480px;
+    background: radial-gradient(800px 360px at 50% -60px, var(--wash), transparent);
+    pointer-events: none;
+  }
+
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding-left: 64px;
+    padding-right: 64px;
+    position: relative;
+  }
+
+  .masthead {
+    padding-top: 28px;
+  }
+  .mast-row {
+    display: flex;
+    align-items: center;
+  }
+  .mast-nav {
+    margin-left: auto;
+    display: flex;
+    gap: 32px;
+    align-items: center;
+  }
+  .rule-strong {
+    border-bottom: 2px solid var(--if-line-strong);
+    margin-top: 20px;
+  }
+  .rule-thin {
+    border-bottom: 1px solid var(--if-line);
+    margin-top: 3px;
+  }
+
+  .hero {
+    padding-top: 64px;
+    padding-bottom: 58px;
+  }
+  .hero-label {
+    color: var(--acc-text);
+    margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-family: var(--if-font-brand);
+    font-size: 56px;
+    line-height: 1.12;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    margin: 0;
+    max-width: 980px;
+    color: var(--if-ink);
+  }
+  .hero .accent {
+    color: var(--acc-text);
+    text-shadow: var(--glow-hero);
+  }
+  .hero p {
+    font-size: 16.5px;
+    line-height: 1.6;
+    color: var(--if-sub);
+    margin: 26px 0 0;
+    max-width: 560px;
+  }
+  .hero .pkg {
+    font-size: 14.5px;
+  }
+
+  .directory {
+    padding-bottom: 52px;
+  }
+  .dir-head,
+  .dir-row {
+    display: grid;
+    grid-template-columns: 64px 150px 230px 1fr 110px 130px;
+    align-items: center;
+  }
+  .dir-head {
+    padding-bottom: 14px;
+  }
+  .dir-row {
+    /* Per-row accent: declared on the row so `var(--hue)` resolves to each
+       subsystem's own hue (the masthead/hero --acc resolves at .hub, the brand
+       hue, and can't be reused here). Frozen L/C, hue per project. */
+    --row-acc: oklch(0.76 0.13 var(--hue));
+    --row-acc-text: oklch(0.76 0.13 var(--hue));
+    border-top: 1px solid var(--if-line);
+    padding: 24px 12px;
+    margin: 0 -12px;
+    transition: background 0.15s;
+  }
+  :global([data-theme='light']) .dir-row {
+    --row-acc: oklch(0.58 0.14 var(--hue));
+    --row-acc-text: oklch(0.45 0.12 var(--hue));
+  }
+  .dir-row.is-soon {
+    opacity: 0.5;
+  }
+  .dir-row.is-live {
+    cursor: pointer;
+  }
+  .dir-row.is-live:hover {
+    background: var(--if-hover);
+  }
+  .dir-row.is-live:hover .arrow {
+    transform: translateX(4px);
+  }
+  .no {
+    font-size: 13px;
+    color: var(--if-mut);
+  }
+  .proj {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .proj-dot {
+    background: var(--row-acc);
+  }
+  .is-live .proj-dot {
+    box-shadow: 0 0 9px oklch(0.72 0.15 var(--hue) / 0.6);
+  }
+  .proj-name {
+    font-family: var(--if-font-brand);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--if-ink);
+  }
+  .pkg-cell {
+    font-size: 13px;
+    color: var(--if-sub);
+  }
+  .desc {
+    font-size: 14px;
+    color: var(--if-sub);
+    padding-right: 24px;
+  }
+  .ver {
+    font-size: 12.5px;
+    color: var(--if-mut);
+  }
+  .is-live .ver {
+    color: var(--row-acc-text);
+  }
+  .link-cell {
+    font-size: 12.5px;
+    text-align: right;
+    color: var(--if-mut);
+  }
+  .is-live .link-cell {
+    color: var(--if-ink);
+  }
+  .arrow {
+    display: inline-block;
+    transition: transform 0.15s;
+  }
+  .soon-flash {
+    display: none;
+    color: var(--row-acc-text);
+  }
+  .dir-row.flash .soon-default {
+    display: none;
+  }
+  .dir-row.flash .soon-flash {
+    display: inline;
+  }
+
+  .principles {
+    padding-top: 8px;
+    padding-bottom: 72px;
+  }
+  .phil-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 48px;
+  }
+  .phil-card {
+    border-top: 1px solid var(--if-line-strong);
+    padding-top: 18px;
+  }
+  .phil-title {
+    font-family: var(--if-font-brand);
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--if-ink);
+  }
+  .phil-n {
+    color: var(--acc-text);
+    margin-right: 10px;
+    font-weight: 500;
+  }
+  .phil-desc {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--if-sub);
+    margin-top: 10px;
+  }
+
+  .foot {
+    padding-bottom: 26px;
+  }
+  .foot-row {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  @media (max-width: 900px) {
+    .wrap {
+      padding-left: 28px;
+      padding-right: 28px;
+    }
+    .hero h1 {
+      font-size: 40px;
+    }
+    .mast-nav {
+      gap: 18px;
+    }
+    .dir-head {
+      display: none;
+    }
+    .dir-row {
+      grid-template-columns: 1fr auto;
+      grid-template-areas: 'proj ver' 'desc link';
+      gap: 6px 12px;
+      row-gap: 8px;
+    }
+    .dir-row .no,
+    .dir-row .pkg-cell {
+      display: none;
+    }
+    .proj {
+      grid-area: proj;
+    }
+    .ver {
+      grid-area: ver;
+      text-align: right;
+    }
+    .desc {
+      grid-area: desc;
+      padding-right: 0;
+    }
+    .link-cell {
+      grid-area: link;
+    }
+    .phil-grid {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+  }
+</style>
+
+<script>
+  // "soon" rows flash an IN DESIGN label when clicked.
+  document.querySelectorAll('.dir-row.is-soon').forEach((row) => {
+    row.addEventListener('click', () => {
+      row.classList.add('flash');
+      setTimeout(() => row.classList.remove('flash'), 1100);
+    });
+  });
+</script>

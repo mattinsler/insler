@@ -1,37 +1,138 @@
 /**
- * insler.dev family brand tokens — the single place the visual identity is
- * defined. Loaded by every family site via `familyStarlightConfig()`; a brand
+ * insler.dev project brand tokens — the single place the visual identity is
+ * defined. Loaded by every project site via `projectStarlightConfig()`; a brand
  * change is an edit to this file, not N copies.
  *
- * Starlight derives its palette from the --sl-color-* custom properties; the
- * --if-* properties are the family's own tokens, used by the shared
- * header/footer/nav components.
+ * This is the insler.dev design system: an "Afterdark" canvas of blue-tinted
+ * neutrals drawn in Space Grotesk (display), Instrument Sans (body), and Geist
+ * Mono (code), with one accent law — OKLCH lightness and chroma are frozen and
+ * only the hue rotates per subsystem, so six unrelated hues read as one set
+ * at equal weight. Each site sets its hue once (`--if-hue`, injected by
+ * `projectStarlightConfig({ hue })`); everything accent-colored derives from it,
+ * with the project root hue (55, amber) as the fallback. The faces are loaded by
+ * the ProjectHead override.
+ *
+ * Starlight builds its theme from the --sl-color-* / --sl-font-* custom
+ * properties; we set the base ramp to the design surfaces and text stops, then
+ * pin the few derived surfaces (recessed code, hairlines) that don't fall out
+ * of a single ramp. The --if-* properties are the project's own tokens, used by
+ * the shared header/footer/nav components and the homepage grid.
  */
 
 :root {
-  /* family tokens */
-  --if-font-brand:
-    ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
-  --if-nav-gap: 1rem;
-  --if-family-strip-height: 2rem;
+  /* ---- design-system tokens (the project's own, used by project components) -- */
+  /* surfaces — recessed → raised */
+  --if-bg: #0a0e18; /* base canvas */
+  --if-panel: #080b14; /* recessed — code, search, install blocks */
+  --if-card: #111729; /* raised — rows, cards, menus, pager */
+  --if-raise: #161d33; /* hover / active row wash */
+  /* text — three stops */
+  --if-ink: #e6eaf6; /* primary headings & emphasis */
+  --if-sub: #a6b0cc; /* body copy & secondary description */
+  --if-mut: #828dab; /* captions, metadata, mono labels */
+  /* structure — hairlines */
+  --if-line: rgba(150, 170, 230, 0.1); /* default hairline */
+  --if-line-strong: rgba(170, 190, 240, 0.22); /* structural rule */
+  --if-hover: rgba(160, 180, 240, 0.05); /* interactive wash */
+  /* accent law — frozen L & C, hue per subsystem (root/amber fallback) */
+  --if-accent-dark: oklch(0.76 0.13 var(--if-hue, 55)); /* primary on dark */
+  --if-accent-glow: oklch(0.72 0.15 var(--if-hue, 55) / 0.25); /* washes / halos */
 
-  /* make room for the family strip the FamilyHeader override adds */
+  /* nav strip metrics */
+  --if-font-brand: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --if-nav-gap: 1rem;
+  --if-project-strip-height: 2rem;
+
+  /* ---- Starlight wiring -------------------------------------------------- */
+  /* design-system typefaces */
+  --sl-font: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+  --sl-font-mono:
+    'Geist Mono', ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono',
+    monospace;
+
+  /* make room for the project strip the ProjectHeader override adds */
   --sl-nav-height: 5.5rem;
 
-  /* Starlight palette, dark (default) — indigo accent */
-  --sl-color-accent-low: #1f2354;
-  --sl-color-accent: #5961ff;
-  --sl-color-accent-high: #c7caff;
+  /* palette, dark (default) — the Afterdark ramp, ink → canvas */
+  --sl-color-white: #e6eaf6; /* headings (ink) */
+  --sl-color-gray-1: #c8cfe2;
+  --sl-color-gray-2: #a6b0cc; /* body text (sub) */
+  --sl-color-gray-3: #828dab; /* captions (mut) */
+  --sl-color-gray-4: #565f7d;
+  --sl-color-gray-5: #161d33; /* raise */
+  --sl-color-gray-6: #111729; /* card — nav & sidebar bg */
+  --sl-color-black: #0a0e18; /* canvas (bg) */
+
+  /* accent law on dark surfaces, derived from the site's hue */
+  --sl-color-accent-low: oklch(0.32 0.1 var(--if-hue, 55)); /* text on accent bg */
+  --sl-color-accent: oklch(0.66 0.14 var(--if-hue, 55)); /* focus rings, active */
+  --sl-color-accent-high: oklch(0.8 0.12 var(--if-hue, 55)); /* link text, accent bg */
+
+  /* pin the design surfaces/hairlines Starlight wouldn't derive from the ramp */
+  --sl-color-bg-inline-code: #080b14; /* recessed (panel) */
+  --sl-color-hairline: rgba(150, 170, 230, 0.1); /* line */
+  --sl-color-hairline-light: rgba(150, 170, 230, 0.1); /* line */
+  --sl-color-hairline-shade: rgba(170, 190, 240, 0.22); /* lineStrong */
 }
 
 :root[data-theme='light'] {
-  /* Starlight palette, light */
-  --sl-color-accent-low: #dcdeff;
-  --sl-color-accent: #3f48eb;
-  --sl-color-accent-high: #1d2182;
+  /* palette, light parity — blue-tinted neutrals on white */
+  --if-bg: #ffffff;
+  --if-panel: #eef1f8;
+  --if-card: #f6f7fb;
+  --if-raise: #eaedf6;
+  --if-ink: #0f1320;
+  --if-sub: #353d52;
+  --if-mut: #5b6480;
+  --if-accent-dark: oklch(0.5 0.14 var(--if-hue, 55));
+  --if-accent-glow: oklch(0.58 0.14 var(--if-hue, 55) / 0.18);
+
+  --sl-color-white: #0f1320; /* headings (darkest) */
+  --sl-color-gray-1: #1b2030;
+  --sl-color-gray-2: #353d52; /* body text */
+  --sl-color-gray-3: #5b6480; /* captions */
+  --sl-color-gray-4: #8088a0;
+  --sl-color-gray-5: #c6ccdd;
+  --sl-color-gray-6: #e8ebf4;
+  --sl-color-gray-7: #f3f5fa;
+  --sl-color-black: #ffffff; /* canvas */
+
+  /* accent law on light surfaces */
+  --sl-color-accent-low: oklch(0.94 0.04 var(--if-hue, 55)); /* tint / wash bg */
+  --sl-color-accent: oklch(0.5 0.14 var(--if-hue, 55)); /* link text / accent bg */
+  --sl-color-accent-high: oklch(0.42 0.12 var(--if-hue, 55)); /* hover / strong */
+
+  --sl-color-bg-inline-code: #eef1f8;
+  --sl-color-hairline: rgba(70, 90, 160, 0.14);
+  --sl-color-hairline-light: rgba(70, 90, 160, 0.1);
+  --sl-color-hairline-shade: rgba(70, 90, 160, 0.22);
 }
 
-/* The site title carries the family wordmark styling. */
+/* The site title carries the project wordmark styling. */
 .site-title {
   font-family: var(--if-font-brand);
+}
+
+/* Design-system motion + scrollbar: smooth scroll, antialiased type, and the
+   periwinkle scrollbar the system is drawn with. */
+html {
+  scroll-behavior: smooth;
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar {
+  width: 11px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(150, 170, 230, 0.18);
+  border: 3px solid var(--sl-color-bg);
+  border-radius: 99px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
 }

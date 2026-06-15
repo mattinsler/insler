@@ -1,6 +1,6 @@
 # @insler/website — the apex insler.dev site
 
-The family homepage (ADR-0003 move 3): an Astro/Starlight site that carries
+The project homepage (ADR-0003 move 3): an Astro/Starlight site that carries
 the shared identity from [`@insler/theme`](./theme/README.md) and describes
 each subsystem with a link out to its `<subsystem>.insler.dev` site. The apex
 hosts **no per-subsystem docs** — those live with their subsystem.
@@ -16,7 +16,7 @@ bun run --filter '@insler/website' dev     # local dev server
 bun run --filter '@insler/website' build   # static build to dist/ (the build is the test)
 ```
 
-The homepage renders from the theme's `family` data
+The homepage renders from the theme's `project` data
 (`src/components/SubsystemGrid.astro`); it carries no identity of its own.
 
 ## CI / deploy

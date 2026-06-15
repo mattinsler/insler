@@ -1,0 +1,73 @@
+---
+title: '@insler/platform'
+description: Codegen and reconciliation from service declarations to running fleets — fleet scanning, a pluggable artifact generator, and a plan/diff reconciler, with the insler CLI composing them.
+template: splash
+hero:
+  title: Infrastructure from code
+  tagline: Turn defineService declarations into running infrastructure — scan a fleet into a desired-state model, generate deployment artifacts through a plugin-based generator, and reconcile with plan/diff applies that auto-converge in development and stay gated and audited in production.
+  actions:
+    - text: Get started
+      link: /getting-started/
+      variant: primary
+    - text: API reference
+      link: /reference/fleet/
+      variant: minimal
+editUrl: false
+lastUpdated: false
+---
+
+## Zero to a plan
+
+One install brings all three platform layers — fleet scanning, artifact
+generation, plan/diff reconciliation — as separately importable entrypoints,
+with the declaration stack underneath (`@insler/service` and the
+`@insler/rpc` core) as its runtime dependencies:
+
+```sh
+bun add @insler/platform
+```
+
+```ts
+import { scanFleet } from '@insler/platform/fleet';
+import { createGenerator, kubernetesPlugin } from '@insler/platform/generator';
+
+// Declarations are ordinary `defineService(...)` files (`*.service.ts`),
+// discovered by convention — adding a service is one new file.
+const fleet = await scanFleet({ cwd: './services' });
+if (!fleet.manifest) throw new Error('invalid fleet');
+
+const generation = createGenerator()
+  .use(kubernetesPlugin)
+  .generate(fleet.manifest, { target: 'kubernetes', outputDir: 'deploy', environment: 'dev' });
+
+generation.files; // deterministic artifacts, sorted for stable diffs
+```
+
+The [getting-started guide](/getting-started/) walks this pipeline end to end
+— and on to planning and applying the rollout.
+
+## Declarations in, artifacts out
+
+The [fleet scanner](/reference/fleet/) collects every `defineService`
+declaration into a **desired-state model** — services, dependency graph,
+fleet-wide routing table — validating cross-service constraints with file
+locations on every error. The [generator](/reference/generator/) compiles
+that model through plugins (Kubernetes manifests, autoscaling, edge routing,
+secret bindings, and more): **pure and deterministic**, same manifest in,
+same files out, which is what makes the plan/diff downstream meaningful.
+
+## Plan, diff, apply — with a production gate
+
+The [reconciler](/reference/reconciler/) diffs desired against actual state
+behind the injectable `StateProvider` seam and yields a plain, JSON-serializable
+plan. Apply policies layer on top: ungated auto-converge for development,
+`applyGated` for production — every attempt, accepted or rejected, writes one
+audit record — and a continuous control loop that classifies and corrects
+drift without ever fighting another controller.
+
+## One CLI over the whole pipeline
+
+The [`insler` CLI](/reference/cli/) composes the layers: `scan`, `generate`,
+`plan` (with a CI PR comment mode), gated `apply`, and `dev` — the
+watch → re-scan → re-generate → auto-converge inner loop. Every command is
+also exported programmatically with injectable IO.

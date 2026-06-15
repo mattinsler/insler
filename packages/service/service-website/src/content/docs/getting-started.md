@@ -134,4 +134,4 @@ derives `prod.commerce.orders`.
   validation and projection.
 - **The stack underneath.** The [rpc subsystem](https://rpc.insler.dev) owns
   contracts, clients, hosts, and transports — and the rest of the
-  [insler.dev](https://insler.dev) family composes the same way.
+  [insler.dev](https://insler.dev) projects compose the same way.

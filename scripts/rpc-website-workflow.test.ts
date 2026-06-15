@@ -32,7 +32,7 @@ describe('path filtering', () => {
     }
   });
 
-  test('rebuilds when the shared theme changes (the site renders the family identity)', () => {
+  test('rebuilds when the shared theme changes (the site renders the project identity)', () => {
     expect(triggers.pull_request.paths).toContain('packages/website/theme/**');
     expect(triggers.push.paths).toContain('packages/website/theme/**');
   });

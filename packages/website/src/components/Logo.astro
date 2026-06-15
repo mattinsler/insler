@@ -1,0 +1,77 @@
+---
+// The insler logomark — the design system's frozen "tessera" mark (board L40):
+// a deliberately-incomplete shattered frame of hand-set tiles around a planned
+// lowercase "i" (the stem + a rosette tittle in the family accent hue). Unix
+// philosophy, drawn: small parts, still reading as a whole. The geometry is
+// copied verbatim from the design system (logomark-final / MarkMosaicOpen);
+// colours come from the shared theme tokens so the mark tracks dark/light and
+// the inherited accent hue.
+interface Props {
+  size?: number;
+  domain?: boolean; // render the ".dev" suffix
+}
+const { size = 28, domain = false } = Astro.props;
+
+// Frozen tile geometry (round-4 generator, seed 66) — static literals so it
+// can never shift. 100×100 viewBox.
+const TILES = [
+  '6,6 25.1,6 25.1,17 17,17 17,25.2 6,25.2',
+  '40.9,6 52.5,6 56.8,17 43.2,17',
+  '55.1,6 73.7,6 73.7,17 58.4,17',
+  '94,6 94,22.1 83,22.1 83,17 76.7,17 76.7,6',
+  '94,25.1 94,35.4 83,39.2 83,25.1',
+  '94,40.6 94,50 83,48 83,45',
+  '94,56.9 94,80 83,80 83,54.4',
+  '86,94 77.1,94 79.3,83 86,83',
+  '73.9,94 61.7,94 59.2,83 76.3,83',
+  '57,94 28,94 25.3,83 55.7,83',
+  '6,80 6,71.1 17,65.8 17,80',
+  '6,64.7 6,54.1 17,55.2 17,60.2',
+  '6,47.9 6,28.2 17,28.2 17,51.8',
+];
+// Grout cuts that segment the stem into hand-set courses.
+const CUTS = ['M44.5 52.8 L55.5 49.4', 'M44.5 58.6 L55.5 62.2', 'M44.5 69.8 L55.5 66.8'];
+const TITTLE = '61,30 57,35.4 51.1,37.9 46.9,33.3 44.5,27.1 50.7,23.2 58.3,23.1';
+---
+
+<div style="display:flex;align-items:center;gap:11px;">
+  <svg
+    class="logomark"
+    width={size}
+    height={size}
+    viewBox="0 0 100 100"
+    role="img"
+    aria-label="insler"
+  >
+    {TILES.map((p) => <polygon class="lm-tile" points={p} />)}
+    <polygon class="lm-tittle" points={TITTLE} />
+    <rect class="lm-stem" x="44.5" y="43" width="11" height="33" />
+    <g class="lm-grout" stroke-width="1.8" stroke-linecap="round" fill="none">
+      <path d="M53.5 29.5 L61 30" />
+      <path d="M53.5 29.5 L48.9 35.9" />
+      <path d="M53.5 29.5 L49.8 23.2" />
+      {CUTS.map((d) => <path d={d} />)}
+    </g>
+  </svg>
+  <span
+    style="font-family:var(--if-font-brand);font-weight:700;font-size:19px;color:var(--if-ink);"
+  >
+    insler{domain && <span style="color:var(--if-mut);">.dev</span>}
+  </span>
+</div>
+
+<style>
+  .lm-tile {
+    fill: var(--if-mut);
+  }
+  .lm-stem {
+    fill: var(--if-ink);
+  }
+  .lm-tittle {
+    fill: var(--acc);
+  }
+  /* Grout reads as the surface behind the mark, cutting the tiles apart. */
+  .lm-grout {
+    stroke: var(--if-bg);
+  }
+</style>

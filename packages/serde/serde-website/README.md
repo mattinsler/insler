@@ -2,10 +2,10 @@
 
 The serde subsystem's docs site (ADR-0003 move 3, subsystem-branding issue
 0008): an independent Astro/Starlight site carrying the shared identity from
-[`@insler/theme`](../../website/theme/README.md) — family nav back to
+[`@insler/theme`](../../website/theme/README.md) — project nav back to
 [insler.dev](https://insler.dev) — with Starlight's built-in Pagefind
 full-text search. A replication of the rpc template site: the site identity
-(URL, title, tagline) derives from the theme's family data, and the reference
+(URL, title, tagline) derives from the theme's project data, and the reference
 section carries one page per umbrella entrypoint and per adapter package
 (`scripts/serde-website-package.test.ts` derives that requirement from the
 umbrella manifest, so it cannot drift — for serde that is the
@@ -20,7 +20,7 @@ release flow; it is *deployed*, not released.
 - `src/content/docs/index.mdx` — landing page, opening with the 0-to-value
   story (one adapter install, a working encode/decode round-trip).
 - `src/content/docs/getting-started.md` — the guide from `bun add` to
-  round-tripping through every format family and implementing the `Serde`
+  round-tripping through every format project and implementing the `Serde`
   interface yourself.
 - `src/content/docs/reference/` — one page per umbrella entrypoint and per
   adapter package, seeded from the agent library guide.

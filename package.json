@@ -1,6 +1,9 @@
 {
   "name": "insler",
   "private": true,
+  "overrides": {
+    "esbuild": "0.28.1"
+  },
   "workspaces": {
     "packages": [
       "examples/*",
